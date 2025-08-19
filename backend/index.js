@@ -16,7 +16,7 @@ const assessmentRoutes = require("./routes/assessmentRoutes");
 connectDB()
 
 const app = express();
-const port = 5000;
+
 
 // Middlewares
 const corsOptions = {
@@ -56,6 +56,6 @@ app.get('/', (req, res) => {
   res.send('Welcome to the backend');
 });
 
-app.listen(port, () => {
-  console.log(`✅ Server running on port ${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`✅ Server running on port ${process.env.PORT}`);
 });
