@@ -3,7 +3,7 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 
-// Configure multer for file uploa
+// Configure multer for file uplo
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
