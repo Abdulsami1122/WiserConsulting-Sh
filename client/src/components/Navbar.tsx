@@ -52,11 +52,11 @@ const Navbar = () => {
             className="flex items-center space-x-2 group"
           >
             <div className="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center group-hover:bg-slate-800 transition-colors">
-              <span className="text-white font-bold text-lg">WS</span>
+              <span className="text-white font-bold text-lg">WC</span>
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold text-slate-900 leading-tight">
-                WISE STEPS
+                WISER CONSULTING
               </span>
               <span className="text-xs text-slate-600 leading-tight">
                 CONSULTANT

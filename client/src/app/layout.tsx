@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WISE STEPS CONSULTANT",
+  title: "WISER CONSULTING",
   description:
     "Expert visa consultation services for students, professionals, and families. Get personalized immigration solutions.",
 };

@@ -374,7 +374,7 @@ const VisaConsultation: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-8 pt-8 text-slate-400">
               <div className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
-                <span className="text-sm">wisestepconsultant55@gmail.com</span>
+                <span className="text-sm">wiserconsulting55@gmail.com</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5" />

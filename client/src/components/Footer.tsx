@@ -28,11 +28,11 @@ const Footer = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-slate-900 font-bold text-xl">WS</span>
+                <span className="text-slate-900 font-bold text-xl">WC</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-white leading-tight">
-                  WISE STEPS
+                  WISER CONSULTING
                 </span>
                 <span className="text-xs text-slate-400 leading-tight">
                   CONSULTANT
@@ -135,10 +135,10 @@ const Footer = () => {
                 <div>
                   <p className="text-white text-sm font-medium mb-1">Email</p>
                   <a
-                    href="mailto:wisestepconsultant55@gmail.com"
+                    href="mailto:wiserconsulting55@gmail.com"
                     className="text-slate-400 hover:text-white transition-colors text-sm"
                   >
-                    wisestepconsultant55@gmail.com
+                    wiserconsulting55@gmail.com
                   </a>
                 </div>
               </li>
@@ -166,7 +166,7 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-slate-400 text-sm text-center md:text-left">
-              © {currentYear} <span className="text-white font-semibold">WISE STEP CONSULTANTS</span>.
+              © {currentYear} <span className="text-white font-semibold">WISER CONSULTING</span>.
               All rights reserved.
             </p>
             <div className="flex items-center space-x-6 text-sm">
