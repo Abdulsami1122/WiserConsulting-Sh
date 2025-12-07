@@ -319,7 +319,7 @@ const AssessmentForm: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
           </button>
         </div>
 
-        {/* Step Indicator */}
+        {/* Step Indicato */}
         <div className="px-8 py-6 bg-slate-50 border-b border-slate-200">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => (

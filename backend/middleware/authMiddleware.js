@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Middleware to check if user is authorized
+// Middleware to check if user is authorize
 const isAuthorized = async (req, res, next) => {
     try {
         // Handle case where cookies might be undefined
