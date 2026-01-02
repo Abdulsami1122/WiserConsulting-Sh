@@ -1,162 +1,48 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Image from 'next/image';
-import { FormSubmission } from '@/redux/slices/formSubmission/formSubmissionService';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/redux/store';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { 
+  fetchSubmissions, 
+  updateStatus, 
+  saveComment, 
+  removeDocument, 
+  removeSubmission 
+} from '@/redux/slices/admin/adminSlice';
 import { renameDocumentAction } from '@/redux/slices/formSubmission/formSubmissionSlice';
-
-interface AdminComment {
-  documentId: string;
-  documentName: string;
-  comment: string;
-  createdAt: string;
-}
-
-interface CustomerComment {
-  message: string;
-  createdAt: string;
-}
+import { filterSubmissionsByStatus, getFileUrl } from '@/utils/filterHelpers';
+import { downloadFile } from '@/utils/fileDownload';
+import { FormSubmission, AdminComment, CustomerComment } from '@/services/adminService';
 
 const AdminFormSubmissions = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { submissions, loading, error } = useAppSelector((state) => state.admin);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedSubmission, setSelectedSubmission] = useState<FormSubmission | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showDocumentPreview, setShowDocumentPreview] = useState(false);
-  const [previewDocument, setPreviewDocument] = useState<{ url: string, name: string, type: string } | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<{ url: string; name: string; type: string } | null>(null);
   const [documentComments, setDocumentComments] = useState<{ [key: string]: string }>({});
-
-  // ✅ New state for rename functionality
   const [renamingDocument, setRenamingDocument] = useState<{ id: string; name: string } | null>(null);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [newDocumentName, setNewDocumentName] = useState('');
 
   useEffect(() => {
-    fetchSubmissions();
-  }, []);
+    dispatch(fetchSubmissions());
+  }, [dispatch]);
 
-  const fetchSubmissions = async () => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${API_URL}/form-submissions`, {
-        credentials: 'include'
-      });
+  const filteredSubmissions = useMemo(
+    () => filterSubmissionsByStatus(submissions, filterStatus),
+    [submissions, filterStatus]
+  );
 
-      if (response.ok) {
-        const data = await response.json();
-        setSubmissions(data.submissions);
-      } else {
-        console.error('Failed to fetch submissions');
-      }
-    } catch (error) {
-      console.error('Error fetching submissions:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleStatusUpdate = async (submissionId: string, newStatus: string) => {
+    await dispatch(updateStatus({ submissionId, status: newStatus }));
   };
 
-  const updateSubmissionStatus = async (submissionId: string, newStatus: string) => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${API_URL}/form-submissions/${submissionId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ status: newStatus })
-      });
-
-      if (response.ok) {
-        fetchSubmissions();
-      } else {
-        console.error('Failed to update submission status');
-      }
-    } catch (error) {
-      console.error('Error updating submission status:', error);
-    }
-  };
-
-  // Helper function to get the correct file URL
-  const getFileUrl = (doc: { cloudinaryUrl?: string, filename?: string, originalname?: string }) => {
-    if (!doc.cloudinaryUrl) return null;
-
-    // If it's already a full URL, return it
-    if (doc.cloudinaryUrl.startsWith('http')) {
-      return doc.cloudinaryUrl;
-    }
-
-    // If it's a relative URL, make it absolute
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
-    return `${backendUrl}${doc.cloudinaryUrl}`;
-  };
-
-  // ✅ Fixed download function that forces download instead of navigation
-  const downloadDocument = async (url: string, filename: string) => {
-    try {
-      console.log('Downloading from URL:', url);
-
-      // Check if it's a Cloudinary URL
-      const isCloudinaryUrl = url.includes('cloudinary.com') || url.includes('res.cloudinary.com');
-
-      if (isCloudinaryUrl) {
-        // For Cloudinary URLs, fetch without credentials and force download
-        const response = await fetch(url, {
-          method: 'GET',
-          credentials: 'omit', // Don't send credentials for Cloudinary
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = filename;
-        a.style.display = 'none'; // Hide the link
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(downloadUrl);
-        document.body.removeChild(a);
-      } else {
-        // For local server URLs, use fetch with credentials
-        const response = await fetch(url, {
-          method: 'GET',
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = filename;
-        a.style.display = 'none'; // Hide the link
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(downloadUrl);
-        document.body.removeChild(a);
-      }
-
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      alert(`Download failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  const handlePreviewDocument = (doc: { cloudinaryUrl?: string, originalname: string, mimetype: string }) => {
-    console.log('Preview document:', doc);
+  const handlePreviewDocument = (doc: { cloudinaryUrl?: string; originalname: string; mimetype: string }) => {
     const fileUrl = getFileUrl(doc);
-
     if (fileUrl) {
       setPreviewDocument({
         url: fileUrl,
@@ -165,99 +51,77 @@ const AdminFormSubmissions = () => {
       });
       setShowDocumentPreview(true);
     } else {
-      console.log('No valid URL available for document:', doc.originalname);
       alert('File URL not available for preview');
     }
   };
 
-  const saveDocumentComment = async (documentId: string, comment: string) => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${API_URL}/${selectedSubmission?._id}/documents/${documentId}/comment`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ comment })
-      });
-
-      if (response.ok) {
-        // Update local state
-        setDocumentComments(prev => ({
-          ...prev,
-          [documentId]: comment
-        }));
-
-        // Show success message
-        alert('Comment saved and email sent to customer!');
-      } else {
-        console.error('Failed to save comment');
-        alert('Failed to save comment');
+  const handleDownloadDocument = async (doc: { cloudinaryUrl?: string; originalname: string }) => {
+    const fileUrl = getFileUrl(doc);
+    if (fileUrl) {
+      try {
+        await downloadFile(fileUrl, doc.originalname);
+      } catch (error) {
+        alert(`Download failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
-    } catch (error) {
-      console.error('Error saving comment:', error);
-      alert('Error saving comment');
     }
   };
 
-  // ✅ Handle rename document
-  const handleRenameDocument = async (documentId: string, currentName: string) => {
+  const handleSaveComment = async (documentId: string, comment: string) => {
+    if (!selectedSubmission) return;
+    
+    try {
+      await dispatch(saveComment({
+        submissionId: selectedSubmission._id,
+        documentId,
+        comment
+      })).unwrap();
+      
+      setDocumentComments(prev => ({
+        ...prev,
+        [documentId]: comment
+      }));
+      alert('Comment saved and email sent to customer!');
+    } catch (error) {
+      alert(`Failed to save comment: ${error}`);
+    }
+  };
+
+  const handleRenameDocument = (documentId: string, currentName: string) => {
     setRenamingDocument({ id: documentId, name: currentName });
-    setNewDocumentName(currentName.replace(/\.[^/.]+$/, '')); // Remove file extension
+    setNewDocumentName(currentName.replace(/\.[^/.]+$/, ''));
     setShowRenameModal(true);
   };
 
-  // ✅ Submit rename
   const submitRename = async () => {
     if (!selectedSubmission || !renamingDocument || !newDocumentName.trim()) {
       return;
     }
 
     try {
-      const result = await dispatch(renameDocumentAction({
+      await dispatch(renameDocumentAction({
         submissionId: selectedSubmission._id,
         documentId: renamingDocument.id,
         newName: newDocumentName.trim()
       })).unwrap();
 
-      if (result.success) {
-        // Update local state
-        const updatedSubmission = { ...selectedSubmission };
-        const documentIndex = updatedSubmission.documents.findIndex(doc => doc._id === renamingDocument.id);
-        if (documentIndex !== -1) {
-          const fileExtension = renamingDocument.name.split('.').pop();
-          updatedSubmission.documents[documentIndex].originalname = `${newDocumentName.trim()}.${fileExtension}`;
-          setSelectedSubmission(updatedSubmission);
-        }
-
-        // Update submissions list
-        const updatedSubmissions = submissions.map(sub =>
-          sub._id === selectedSubmission._id ? updatedSubmission : sub
-        );
-        setSubmissions(updatedSubmissions);
-
-        // Close modal and reset state
-        setShowRenameModal(false);
-        setRenamingDocument(null);
-        setNewDocumentName('');
-
-        alert('Document renamed successfully!');
+      // Refetch submissions to get updated data
+      await dispatch(fetchSubmissions());
+      
+      // Update selected submission
+      const updated = submissions.find(s => s._id === selectedSubmission._id);
+      if (updated) {
+        setSelectedSubmission(updated);
       }
+
+      setShowRenameModal(false);
+      setRenamingDocument(null);
+      setNewDocumentName('');
+      alert('Document renamed successfully!');
     } catch (error) {
-      console.error('Error renaming document:', error);
       alert(`Failed to rename document: ${error}`);
     }
   };
 
-  // ✅ Cancel rename
-  const cancelRename = () => {
-    setShowRenameModal(false);
-    setRenamingDocument(null);
-    setNewDocumentName('');
-  };
-
-  // ✅ Handle delete document
   const handleDeleteDocument = async (documentId: string, documentName: string) => {
     if (!selectedSubmission) return;
 
@@ -265,66 +129,37 @@ const AdminFormSubmissions = () => {
     if (!confirmDelete) return;
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${API_URL}/form-submissions/${selectedSubmission._id}/documents/${documentId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      await dispatch(removeDocument({
+        submissionId: selectedSubmission._id,
+        documentId
+      })).unwrap();
 
-      if (response.ok) {
-        // Remove document from local state
-        const updatedSubmission = { ...selectedSubmission };
-        updatedSubmission.documents = updatedSubmission.documents.filter(doc => doc._id !== documentId);
-        setSelectedSubmission(updatedSubmission);
-
-        // Update submissions list
-        const updatedSubmissions = submissions.map(sub =>
-          sub._id === selectedSubmission._id ? updatedSubmission : sub
-        );
-        setSubmissions(updatedSubmissions);
-
-        alert('Document deleted successfully!');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete document');
+      // Update selected submission
+      const updated = submissions.find(s => s._id === selectedSubmission._id);
+      if (updated) {
+        setSelectedSubmission(updated);
       }
+      alert('Document deleted successfully!');
     } catch (error) {
-      console.error('Error deleting document:', error);
-      alert(`Failed to delete document: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(`Failed to delete document: ${error}`);
     }
   };
 
-  // ✅ Handle delete submission
   const handleDeleteSubmission = async (submissionId: string, submissionName: string) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete submission for "${submissionName}"? This action cannot be undone.`);
     if (!confirmDelete) return;
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${API_URL}/form-submissions/${submissionId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        setSubmissions(prev => prev.filter(sub => sub._id !== submissionId));
-        if (selectedSubmission?._id === submissionId) {
-          setSelectedSubmission(null);
-          setShowDetailsModal(false);
-        }
-        alert('Submission deleted successfully!');
-      } else {
-        throw new Error('Failed to delete submission');
+      await dispatch(removeSubmission(submissionId)).unwrap();
+      if (selectedSubmission?._id === submissionId) {
+        setSelectedSubmission(null);
+        setShowDetailsModal(false);
       }
+      alert('Submission deleted successfully!');
     } catch (error) {
-      console.error('Error deleting submission:', error);
-      alert('Failed to delete submission');
+      alert(`Failed to delete submission: ${error}`);
     }
   };
-
-  const filteredSubmissions = filterStatus === 'all'
-    ? submissions
-    : submissions.filter(submission => submission.status === filterStatus);
 
   if (loading) {
     return (
@@ -332,6 +167,16 @@ const AdminFormSubmissions = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading submissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600">{error}</p>
         </div>
       </div>
     );
@@ -405,12 +250,13 @@ const AdminFormSubmissions = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={submission.status}
-                        onChange={(e) => updateSubmissionStatus(submission._id, e.target.value)}
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${submission.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            submission.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
-                              submission.status === 'contacted' ? 'bg-purple-100 text-purple-800' :
-                                'bg-green-100 text-green-800'
-                          }`}
+                        onChange={(e) => handleStatusUpdate(submission._id, e.target.value)}
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          submission.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          submission.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
+                          submission.status === 'contacted' ? 'bg-purple-100 text-purple-800' :
+                          'bg-green-100 text-green-800'
+                        }`}
                       >
                         <option value="pending">Pending</option>
                         <option value="reviewed">Reviewed</option>
@@ -519,7 +365,7 @@ const AdminFormSubmissions = () => {
                                     Preview
                                   </button>
                                   <button
-                                    onClick={() => downloadDocument(fileUrl, doc.originalname)}
+                                    onClick={() => handleDownloadDocument(doc)}
                                     className="flex-1 bg-green-500 text-white text-xs py-1 px-2 rounded hover:bg-green-600 transition-colors"
                                   >
                                     Download
@@ -528,7 +374,6 @@ const AdminFormSubmissions = () => {
                               )}
                             </div>
 
-                            {/* ✅ Rename and Delete Buttons */}
                             <div className="mb-2 flex space-x-2">
                               <button
                                 onClick={() => handleRenameDocument(doc._id, doc.originalname)}
@@ -544,7 +389,6 @@ const AdminFormSubmissions = () => {
                               </button>
                             </div>
 
-                            {/* Comment Section */}
                             <div className="mt-3">
                               <textarea
                                 placeholder="Add a comment for this document..."
@@ -557,14 +401,13 @@ const AdminFormSubmissions = () => {
                                 rows={2}
                               />
                               <button
-                                onClick={() => saveDocumentComment(doc._id, documentComments[doc._id] || '')}
+                                onClick={() => handleSaveComment(doc._id, documentComments[doc._id] || '')}
                                 className="mt-1 w-full bg-purple-500 text-white text-xs py-1 px-2 rounded hover:bg-purple-600 transition-colors"
                               >
                                 Save Comment
                               </button>
                             </div>
 
-                            {/* Existing Comment */}
                             {doc.comment && (
                               <div className="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-800">
                                 <strong>Comment:</strong> {doc.comment}
@@ -666,7 +509,7 @@ const AdminFormSubmissions = () => {
 
                 <div className="mt-4 flex justify-end space-x-3">
                   <button
-                    onClick={() => downloadDocument(previewDocument.url, previewDocument.name)}
+                    onClick={() => handleDownloadDocument({ cloudinaryUrl: previewDocument.url, originalname: previewDocument.name })}
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
                   >
                     Download
@@ -686,14 +529,18 @@ const AdminFormSubmissions = () => {
           </div>
         )}
 
-        {/* ✅ Rename Document Modal */}
+        {/* Rename Document Modal */}
         {showRenameModal && renamingDocument && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-md w-full p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">Rename Document</h3>
                 <button
-                  onClick={cancelRename}
+                  onClick={() => {
+                    setShowRenameModal(false);
+                    setRenamingDocument(null);
+                    setNewDocumentName('');
+                  }}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   ✕
@@ -719,7 +566,11 @@ const AdminFormSubmissions = () => {
 
               <div className="flex justify-end space-x-3">
                 <button
-                  onClick={cancelRename}
+                  onClick={() => {
+                    setShowRenameModal(false);
+                    setRenamingDocument(null);
+                    setNewDocumentName('');
+                  }}
                   className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel

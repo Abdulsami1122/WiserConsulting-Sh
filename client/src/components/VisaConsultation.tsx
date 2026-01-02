@@ -20,8 +20,9 @@ import {
   Mail,
   MapPin
 } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/redux/store';
+import { fetchAdminComments } from '@/redux/slices/formSubmission/formSubmissionSlice';
 
 interface AuthState {
   user: {
@@ -38,8 +39,8 @@ type AdminComment = {
 };
 
 const VisaConsultation: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [adminComments, setAdminComments] = useState<AdminComment[]>([]);
   const [showComments, setShowComments] = useState(false);
 
   const popularDestinations: Country[] = [
@@ -51,29 +52,13 @@ const VisaConsultation: React.FC = () => {
   ];
 
   const { user } = useSelector((state: RootState) => state.auth) as { user: { email: string } | null };
+  const { adminComments } = useSelector((state: RootState) => state.formSubmission);
 
   useEffect(() => {
-    const fetchAdminComments = async () => {
-      if (!user?.email) return;
-      try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`${API_URL}/customer-submission/${user.email}`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.submission && data.submission.adminComments) {
-            setAdminComments(data.submission.adminComments);
-          } else {
-            setAdminComments([]);
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching comments:', err);
-      }
-    };
-    fetchAdminComments();
-  }, [user]);
+    if (user?.email) {
+      dispatch(fetchAdminComments(user.email));
+    }
+  }, [user?.email, dispatch]);
 
   const groupCommentsByDocument = (comments: AdminComment[]) => {
     const grouped: { [key: string]: AdminComment[] } = {};

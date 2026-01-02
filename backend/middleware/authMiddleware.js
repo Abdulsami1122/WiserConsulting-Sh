@@ -1,7 +1,9 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const userRepository = require('../repositories/userRepository');
+const { AppError } = require('../middleware/errorHandler');
+const logger = require('../utils/logger');
 
-// Middleware to check if user is authorize
+// Middleware to check if user is authorized
 const isAuthorized = async (req, res, next) => {
     try {
         // Handle case where cookies might be undefined
@@ -14,7 +16,7 @@ const isAuthorized = async (req, res, next) => {
 
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await User.findById(decodedToken.id);
+        const user = await userRepository.findById(decodedToken.id);
         if (!user) {
             return res.status(401).json({ success: false, message: 'User not found.' });
         }
@@ -22,7 +24,7 @@ const isAuthorized = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        console.error('Error in isAuthorized middleware:', error.message);
+        logger.error('Error in isAuthorized middleware:', error.message);
         return res.status(401).json({ success: false, message: 'Invalid or expired token.' });
     }
 };
@@ -42,7 +44,7 @@ const isAdmin = (req, res, next) => {
 
         next();
     } catch (error) {
-        console.error('Error in isAdmin middleware:', error.message);
+        logger.error('Error in isAdmin middleware:', error.message);
         return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 };

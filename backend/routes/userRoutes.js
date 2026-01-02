@@ -1,244 +1,61 @@
+/**
+ * User Routes
+ * Only routes - no business logic, no DB queries
+ */
+
 const express = require('express');
-
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const User = require('../models/User');
-const { isAdmin, isAuthorized } = require('../middleware/authMiddleware');
-
-
 const router = express.Router();
+const userController = require('../controllers/userController');
+const { isAuthorized, isAdmin } = require('../middleware/authMiddleware');
+const validate = require('../middleware/validate');
+const {
+  signupSchema,
+  loginSchema,
+  updateProfileSchema,
+  updateUserRoleSchema,
+  createAdminSchema
+} = require('../validations/userValidation');
 
 // Signup
-router.post('/signup', async (req, res) => {
-  const { name, email, password } = req.body;
-
-  try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ 
-      $or: [{ email }, { name }] 
-    });
-    
-    if (existingUser) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'User with this email or name already exists' 
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword });
-
-    res.status(201).json({
-      success: true,
-      message: 'User created successfully',
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error during registration');
-  }
-});
+router.post('/signup', validate(signupSchema), userController.signup.bind(userController));
 
 // Login
-router.post('/login', async (req, res) => {
-  const { email, name, password } = req.body;
-
-  try {
-    // Try to find user by email first, then by name
-    let user = await User.findOne({ email });
-    if (!user && name) {
-      user = await User.findOne({ name });
-    }
-    
-    if (!user) {
-      console.log('Login attempt failed - no user found for:', { email, name });
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    // Check if user has password (not Google-only user)
-    if (!user.password) {
-      return res.status(400).json({ message: 'Please use Google authentication' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      console.log('Login attempt failed - password mismatch for user:', user.email);
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    user.password = undefined;
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXP || '365d',
-    });
-
-    return res.cookie('token', token, {
-      httpOnly: true,
-      secure: true, 
-      sameSite: 'None',
-      maxAge: 365 * 24 * 60 * 60 * 1000,
-    }).status(200).json({
-      success: true,
-      user,
-      token,
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).send('Server error during login');
-  }
-});
+router.post('/login', validate(loginSchema), userController.login.bind(userController));
 
 // Logout
-router.get('/logout', (req, res) => {
-  return res.cookie('token', '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-    expires: new Date(0),
-  }).status(200).json({
-    success: true,
-    message: 'Logged out successfully',
-  });
-});
+router.get('/logout', userController.logout.bind(userController));
+router.post('/logout', userController.logout.bind(userController));
 
-// Add POST logout route for consistency
-router.post('/logout', (req, res) => {
-  return res.cookie('token', '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-    expires: new Date(0),
-  }).status(200).json({
-    success: true,
-    message: 'Logged out successfully',
-  });
-});
+// Get all users (Admin only, with pagination)
+router.get(
+  '/all-users',
+  isAuthorized,
+  isAdmin,
+  userController.getAllUsers.bind(userController)
+);
 
-// All users
-
-router.get('/all-users', isAuthorized, isAdmin, async (req, res) => {
-  try {
-    const users = await User.find({}).select('-password');
-    res.status(200).json({
-      success: true,
-      users,
-      total: users.length,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error while fetching users');
-  }
-});
-
-// Update profile
-router.put('/update-profile', isAuthorized, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { name, phone, address, city } = req.body;
-
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-
-    user.name = name || user.name;
-    user.phone = phone || user.phone;
-    user.address = address || user.address;
-    user.city = city || user.city;
-
-    const updatedUser = await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: 'Profile updated successfully',
-      user: {
-        id: updatedUser._id,
-        name: updatedUser.name,
-        phone: updatedUser.phone,
-        address: updatedUser.address,
-        city: updatedUser.city,
-      },
-    });
-  } catch (error) {
-    console.error('Update Profile Error:', error);
-    return res.status(500).json({ success: false, message: 'Server error' });
-  }
-});
+// Update profile (Authorized users)
+router.put(
+  '/update-profile',
+  isAuthorized,
+  validate(updateProfileSchema),
+  userController.updateProfile.bind(userController)
+);
 
 // Update user role (Admin only)
-router.put('/update-user-role/:userId', isAuthorized, isAdmin, async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { role } = req.body;
+router.put(
+  '/update-user-role/:userId',
+  isAuthorized,
+  isAdmin,
+  validate(updateUserRoleSchema),
+  userController.updateUserRole.bind(userController)
+);
 
-    if (role === undefined || role === null) {
-      return res.status(400).json({
-        success: false,
-        message: 'Role is required'
-      });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    user.role = role;
-    const updatedUser = await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: 'User role updated successfully',
-      user: {
-        id: updatedUser._id,
-        name: updatedUser.name,
-        role: updatedUser.role,
-        phone: updatedUser.phone,
-        address: updatedUser.address,
-        city: updatedUser.city,
-      },
-    });
-  } catch (error) {
-    console.error('Update User Role Error:', error);
-    return res.status(500).json({ success: false, message: 'Server error' });
-  }
-});
-
-// Create admin user (for initial setup)
-router.post('/create-admin', async (req, res) => {
-  const { name, email, password } = req.body;
-
-  try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ 
-      $or: [{ email }, { name }] 
-    });
-    
-    if (existingUser) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'User with this email or name already exists' 
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ 
-      name, 
-      email, 
-      password: hashedPassword,
-      role: 1 // Set as admin
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Admin user created successfully',
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error during admin creation');
-  }
-});
+// Create admin user
+router.post(
+  '/create-admin',
+  validate(createAdminSchema),
+  userController.createAdmin.bind(userController)
+);
 
 module.exports = router;

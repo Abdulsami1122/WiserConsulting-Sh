@@ -69,4 +69,39 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
   
     return data;
   };
+
+  // ✅ Google OAuth login
+  export interface GoogleLoginResponse {
+    success: boolean;
+    user?: User;
+    token?: string;
+    message?: string;
+  }
+
+  export const googleLogin = async (accessToken: string): Promise<GoogleLoginResponse> => {
+    const response = await fetch(`${API_URL}/auth/google/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: accessToken,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Authentication failed');
+    }
+
+    const data: GoogleLoginResponse = await response.json();
+
+    // Store user + token in localStorage
+    if (data.user && data.token) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+    }
+
+    return data;
+  };
   

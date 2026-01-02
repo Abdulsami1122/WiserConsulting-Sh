@@ -1,79 +1,44 @@
-
-
-
 'use client';
 
-import { useState, useEffect } from 'react';
-
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: number;
-  createdAt: string;
-}
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { fetchUsers, updateRole } from '@/redux/slices/admin/adminSlice';
+import { filterUsersByRole } from '@/utils/filterHelpers';
+import { useState, useMemo } from 'react';
 
 const AdminUsers = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { users, loading, error } = useAppSelector((state) => state.admin);
   const [filterRole, setFilterRole] = useState<string>('all');
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    dispatch(fetchUsers());
+  }, [dispatch]);
 
-  const fetchUsers = async () => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${API_URL}/all-users`, {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.users);
-      } else {
-        console.error('Failed to fetch users');
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filteredUsers = useMemo(
+    () => filterUsersByRole(users, filterRole),
+    [users, filterRole]
+  );
 
   const handleRoleUpdate = async (userId: string, newRole: number) => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${API_URL}/update-user-role/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ role: newRole })
-      });
-      
-      if (response.ok) {
-        fetchUsers(); // Refresh the list
-      } else {
-        console.error('Failed to update user role');
-      }
-    } catch (error) {
-      console.error('Error updating user role:', error);
-    }
+    await dispatch(updateRole({ userId, role: newRole }));
   };
 
-  const filteredUsers = filterRole === 'all' 
-    ? users 
-    : users.filter(user => 
-        filterRole === 'admin' ? user.role === 1 : user.role === 0
-      );
+  const totalAdmins = useMemo(() => users.filter(u => u.role === 1).length, [users]);
+  const totalRegularUsers = useMemo(() => users.filter(u => u.role === 0).length, [users]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-600">{error}</div>
       </div>
     );
   }
@@ -168,7 +133,7 @@ const AdminUsers = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Admins</p>
               <p className="text-2xl font-bold text-gray-900">
-                {users.filter(u => u.role === 1).length}
+                {totalAdmins}
               </p>
             </div>
           </div>
@@ -182,7 +147,7 @@ const AdminUsers = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Users</p>
               <p className="text-2xl font-bold text-gray-900">
-                {users.filter(u => u.role === 0).length}
+                {totalRegularUsers}
               </p>
             </div>
           </div>

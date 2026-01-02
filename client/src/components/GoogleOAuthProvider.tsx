@@ -10,7 +10,7 @@ export default function GoogleOAuthProviderWrapper({ children }: Props) {
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
   
   if (!clientId) {
-    console.warn('Google Client ID not found');
+    // Google Client ID not found - OAuth will not work
     return <>{children}</>;
   }
 

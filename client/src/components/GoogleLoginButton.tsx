@@ -2,77 +2,43 @@
 
 import { useGoogleLogin } from '@react-oauth/google';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useAppDispatch } from '@/redux/hooks';
-import { setUser } from '@/redux/slices/auth/authSlice';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ;
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { googleAuth } from '@/redux/slices/auth/authSlice';
 
 export default function GoogleLoginButton() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { loading, error, user } = useAppSelector((state) => state.auth);
 
   const login = useGoogleLogin({
     onSuccess: async (response) => {
-      try {
-        setIsLoading(true);
-        setError('');
-
-        
-        // Send the access token to your backend - Fix: Use environment variable
-        const res = await fetch(`${API_URL}/auth/google/token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            access_token: response.access_token,
-          }),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-      
-          
-          // Store the 
-          localStorage.setItem('token', data.token);
-          
-          // Store user data in localStorag
-          localStorage.setItem('user', JSON.stringify(data.user));
-          
-          // Update Redux store
-          dispatch(setUser(data.user));
-          
-          // Redirect to homepage
-          router.push('/');
-        } else {
-          const errorData = await res.json();
-          console.error('Backend authentication failed:', errorData);
-          setError(errorData.message || 'Authentication failed');
-        }
-      } catch (error) {
-        console.error('Error during Google authentication:', error);
-        setError('Network error. Please try again.');
-      } finally {
-        setIsLoading(false);
-      }
+      await dispatch(googleAuth(response.access_token));
     },
-    onError: (error) => {
-      console.error('Google login error:', error);
-      setError('Google login failed. Please try again.');
+    onError: () => {
+      // Error handled by Redux
     },
   });
+
+  // Redirect on successful login
+  useEffect(() => {
+    if (user) {
+      if (user.role === 1) {
+        router.push('/admin/products');
+      } else {
+        router.push('/');
+      }
+    }
+  }, [user, router]);
 
   return (
     <div className="w-full">
       <button
         onClick={() => login()}
-        disabled={isLoading}
+        disabled={loading}
         className="w-full flex items-center justify-center gap-3 bg-white text-slate-700 px-4 py-3 rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors disabled:opacity-50 shadow-sm"
       >
-        {isLoading ? (
+        {loading ? (
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-900"></div>
         ) : (
           <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -94,7 +60,7 @@ export default function GoogleLoginButton() {
             />
           </svg>
         )}
-        {isLoading ? 'Signing in...' : 'Continue with Google'}
+        {loading ? 'Signing in...' : 'Continue with Google'}
       </button>
       
       {error && (

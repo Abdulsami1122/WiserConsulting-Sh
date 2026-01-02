@@ -57,6 +57,8 @@ const formSubmissionSchema = new mongoose.Schema(
             cloudinaryUrl: String,
             cloudinaryPublicId: String,
             cloudinaryId: String,
+            localPath: String, // For local file storage
+            uploadType: String, // 'cloudinary' or 'local'
             comment: String, // Add this for admin comments
         }],
         status: {
@@ -79,11 +81,21 @@ const formSubmissionSchema = new mongoose.Schema(
                 type: Date,
                 default: Date.now
             }
-        }]
+        }],
+        isDeleted: {
+            type: Boolean,
+            default: false
+        }
     },
     {
         timestamps: true
     }
 );
+
+// Index for frequently used fields
+formSubmissionSchema.index({ email: 1 });
+formSubmissionSchema.index({ status: 1 });
+formSubmissionSchema.index({ isDeleted: 1 });
+formSubmissionSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('FormSubmission', formSubmissionSchema);

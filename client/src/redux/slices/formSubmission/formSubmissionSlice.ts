@@ -8,11 +8,13 @@ import {
   FormSubmissionResponse,
   CustomerSubmissionResponse,
   RenameDocumentResponse,
-  FormSubmission
+  FormSubmission,
+  AdminComment
 } from "./formSubmissionService";
 
 interface FormSubmissionState {
   currentSubmission: FormSubmission | null;
+  adminComments: AdminComment[];
   loading: boolean;
   error: string | null;
   success: string | null;
@@ -21,6 +23,7 @@ interface FormSubmissionState {
 
 const initialState: FormSubmissionState = {
   currentSubmission: null,
+  adminComments: [],
   loading: false,
   error: null,
   success: null,
@@ -70,6 +73,22 @@ export const renameDocumentAction = createAsyncThunk<
   async ({ submissionId, documentId, newName }, thunkAPI) => {
     try {
       return await renameDocument(submissionId, documentId, newName);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      return thunkAPI.rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const fetchAdminComments = createAsyncThunk<
+  CustomerSubmissionResponse,
+  string,
+  { rejectValue: string }
+>(
+  "formSubmission/fetchAdminComments",
+  async (email, thunkAPI) => {
+    try {
+      return await getCustomerSubmission(email);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       return thunkAPI.rejectWithValue(errorMessage);
@@ -159,6 +178,25 @@ const formSubmissionSlice = createSlice({
       .addCase(renameDocumentAction.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to rename document';
+      })
+
+    // Fetch Admin Comments
+      .addCase(fetchAdminComments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAdminComments.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload.success && action.payload.submission) {
+          state.adminComments = action.payload.submission.adminComments || [];
+        } else {
+          state.adminComments = [];
+        }
+      })
+      .addCase(fetchAdminComments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch admin comments';
+        state.adminComments = [];
       });
   },
 });

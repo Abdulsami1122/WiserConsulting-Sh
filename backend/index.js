@@ -1,8 +1,6 @@
 // server.js
 const express = require("express");
 const cors = require("cors");
-const multer = require("multer");
-const nodemailer = require("nodemailer");
 const session = require("express-session");
 const passport = require("passport");
 const cookieParser = require("cookie-parser");
@@ -15,6 +13,9 @@ const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const assessmentRoutes = require("./routes/assessmentRoutes");
 const formSubmissionRoutes = require('./routes/formSubmissionRoutes');
+const { apiLimiter, authLimiter, uploadLimiter } = require('./middleware/rateLimiter');
+const sanitize = require('./middleware/sanitize');
+const logger = require('./utils/logger');
 
 connectDB()
 
@@ -27,9 +28,15 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Input sanitization (must be before body parsing)
+app.use(sanitize);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Rate limiting
+app.use('/api', apiLimiter);
 
 // Session middleware
 app.use(session({
@@ -50,9 +57,9 @@ app.use(passport.session());
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API Routes
+// API Routes with rate limiting
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api', userRoutes);
-app.use('/api/auth', authRoutes);
 app.use('/api', assessmentRoutes);
 app.use('/api', formSubmissionRoutes);
 
@@ -60,6 +67,10 @@ app.get('/', (req, res) => {
   res.send('Welcome to the backend');
 });
 
+// Central Error Handler (must be last)
+const { errorHandler } = require('./middleware/errorHandler');
+app.use(errorHandler);
+
 app.listen(process.env.PORT, () => {
-  console.log(`✅ Server running on port ${process.env.PORT}`);
+  logger.info(`✅ Server running on port ${process.env.PORT}`);
 });
