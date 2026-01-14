@@ -86,12 +86,9 @@ const Services = () => {
       <section className="relative text-white pt-32 pb-20 overflow-hidden">
         {/* Background Image */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: 'url(/back.png)',
-            backgroundAttachment: 'fixed',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
           }}
         ></div>
         {/* Overlay for better text readability */}

@@ -50,7 +50,9 @@ const userSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Index for frequently used fields (email and googleId already indexed via unique: true)
+// Index for frequently used fields
+userSchema.index({ email: 1 });
+userSchema.index({ googleId: 1 });
 userSchema.index({ isDeleted: 1 });
 
 module.exports = mongoose.model('User', userSchema);
