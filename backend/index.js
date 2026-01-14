@@ -11,19 +11,21 @@ require("./config/passport");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
-const assessmentRoutes = require("./routes/assessmentRoutes");
 const formSubmissionRoutes = require('./routes/formSubmissionRoutes');
+const portfolioRoutes = require('./routes/portfolioRoutes');
+const teamRoutes = require('./routes/teamRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
+const contentRoutes = require('./routes/contentRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 const { apiLimiter, authLimiter, uploadLimiter } = require('./middleware/rateLimiter');
 const sanitize = require('./middleware/sanitize');
 const logger = require('./utils/logger');
-
-connectDB()
 
 const app = express();
 
 // Middlewares
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -60,17 +62,47 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // API Routes with rate limiting
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api', userRoutes);
-app.use('/api', assessmentRoutes);
 app.use('/api', formSubmissionRoutes);
+app.use('/api', portfolioRoutes);
+app.use('/api', teamRoutes);
+app.use('/api', serviceRoutes);
+app.use('/api', contentRoutes);
+app.use('/api', contactRoutes);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the backend');
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Backend is running',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Central Error Handler (must be last)
 const { errorHandler } = require('./middleware/errorHandler');
 app.use(errorHandler);
 
-app.listen(process.env.PORT, () => {
-  logger.info(`✅ Server running on port ${process.env.PORT}`);
-});
+// Start server only after MongoDB connection is established
+const startServer = async () => {
+  try {
+    await connectDB();
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      logger.info(`✅ Server running on port ${PORT}`);
+      logger.info(`✅ Health check available at http://localhost:${PORT}/health`);
+    });
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    console.error('Full error details:', error);
+    if (error.stack) {
+      console.error('Stack trace:', error.stack);
+    }
+    process.exit(1);
+  }
+};
+
+startServer();

@@ -52,7 +52,7 @@ const formStep1Schema = z.object({
 
 const formStep2Schema = z.object({
   destinationCountry: z.string().min(1, 'Destination country is required'),
-  visaType: z.string().min(1, 'Visa type is required'),
+    visaType: z.string().min(1, 'Project type is required'),
   fromDate: z.string().min(1, 'From date is required'),
   toDate: z.string().min(1, 'To date is required'),
   purpose: z.string().min(1, 'Purpose is required'),

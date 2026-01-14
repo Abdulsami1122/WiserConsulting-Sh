@@ -1,47 +1,67 @@
 import Link from "next/link";
+import Image from "next/image";
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram, FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const services = [
-    { name: "Student Visass", href: "/services/student-visa" },
-    { name: "Tourist Visa", href: "/services/tourist-visa" },
-    { name: "Transit Visa", href: "/services/transit-visa" },
-    { name: "Work Visa", href: "/services/work-visa" },
+    { name: "Custom Software Development", href: "/services" },
+    { name: "Cloud Solutions", href: "/services" },
+    { name: "Mobile App Development", href: "/services" },
   ];
 
   const quickLinks = [
     { name: "About Us", href: "/about" },
     { name: "Services", href: "/services" },
+    { name: "Portfolio", href: "/portfolio" },
+    { name: "Team", href: "/team" },
     { name: "Contact", href: "/contact" },
     { name: "Privacy Policy", href: "/privacy" },
     { name: "Terms of Service", href: "/terms" },
   ];
 
   return (
-    <footer className="bg-slate-900 text-slate-300">
+    <footer className="bg-slate-900 text-slate-300 relative">
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
+          style={{
+            backgroundImage: 'url(/1.png)',
+          }}
+        ></div>
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-slate-900/80"></div>
+        {/* Content */}
+        <div className="relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand Section */}
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-slate-900 font-bold text-xl">WC</span>
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden bg-white/10">
+                <Image
+                  src="/logo.png"
+                  alt="Wiser Consulting Logo"
+                  width={48}
+                  height={48}
+                  className="object-contain w-full h-full"
+                  unoptimized
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-white leading-tight">
                   WISER CONSULTING
                 </span>
                 <span className="text-xs text-slate-400 leading-tight">
-                  CONSULTANT
+                  SOFTWARE HOUSE
                 </span>
               </div>
             </div>
             <p className="text-slate-400 leading-relaxed text-sm">
-              Expert visa consultation services for students, professionals, and families worldwide.
-              Your trusted partner for a brighter future.
+              Expert software consulting and development services. We transform your ideas into powerful 
+              digital solutions that drive business growth and innovation.
             </p>
             {/* Social Links */}
             <div className="flex space-x-3">
@@ -123,7 +143,7 @@ const Footer = () => {
                 <div>
                   <p className="text-white text-sm font-medium mb-1">Address</p>
                   <p className="text-slate-400 text-sm leading-relaxed">
-                    Deans Trade Center, LG 07<br />
+                    Deans Trade Center, UG 390<br />
                     Peshawar, Pakistan
                   </p>
                 </div>
@@ -135,10 +155,10 @@ const Footer = () => {
                 <div>
                   <p className="text-white text-sm font-medium mb-1">Email</p>
                   <a
-                    href="mailto:wiserconsulting55@gmail.com"
+                    href="mailto:taimour448@gmail.com"
                     className="text-slate-400 hover:text-white transition-colors text-sm"
                   >
-                    wiserconsulting55@gmail.com
+                    taimour448@gmail.com
                   </a>
                 </div>
               </li>
@@ -148,15 +168,25 @@ const Footer = () => {
                 </div>
                 <div>
                   <p className="text-white text-sm font-medium mb-1">Phone</p>
-                  <a
-                    href="tel:+1234567890"
-                    className="text-slate-400 hover:text-white transition-colors text-sm"
-                  >
-                    +1 (123) 456-7890
-                  </a>
+                  <div className="flex flex-wrap gap-2">
+                    <a
+                      href="tel:+923130922988"
+                      className="text-slate-400 hover:text-white transition-colors text-sm"
+                    >
+                      +92 313 0922988
+                    </a>
+                    <span className="text-slate-400">|</span>
+                    <a
+                      href="tel:+923065779097"
+                      className="text-slate-400 hover:text-white transition-colors text-sm"
+                    >
+                      +92 3065779097
+                    </a>
+                  </div>
                 </div>
               </li>
             </ul>
+          </div>
           </div>
         </div>
       </div>

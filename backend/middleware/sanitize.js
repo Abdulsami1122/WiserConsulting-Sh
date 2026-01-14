@@ -10,14 +10,29 @@ const sanitize = (req, res, next) => {
       return typeof obj === 'string' ? sanitizeString(obj) : obj;
     }
 
+    // Handle Mongoose documents and special objects
+    if (obj.constructor && obj.constructor.name === 'model') {
+      // If it's a Mongoose document, convert to plain object
+      try {
+        obj = obj.toObject ? obj.toObject() : obj;
+      } catch (e) {
+        // If toObject fails, just return as is
+        return obj;
+      }
+    }
+
     if (Array.isArray(obj)) {
       return obj.map(item => sanitizeObject(item));
     }
 
     const sanitized = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+    // Use Object.keys instead of hasOwnProperty for better compatibility
+    for (const key of Object.keys(obj)) {
+      try {
         sanitized[key] = sanitizeObject(obj[key]);
+      } catch (e) {
+        // Skip properties that can't be accessed
+        continue;
       }
     }
     return sanitized;

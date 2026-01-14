@@ -28,7 +28,7 @@ class FormSubmissionController {
     return ApiResponse.success(
       res,
       { submissionId: submission._id },
-      'Assessment submitted successfully! We will contact you within 24 hours.',
+      'Form submitted successfully! We will contact you within 24 hours.',
       201
     );
   })

@@ -20,16 +20,22 @@ export default function GoogleLoginButton() {
     },
   });
 
+  // Helper function to check if user is admin
+  const isAdmin = (role: string | number | undefined): boolean => {
+    return role === 1 || role === '1' || role === 'admin';
+  };
+
   // Redirect on successful login
   useEffect(() => {
-    if (user) {
-      if (user.role === 1) {
-        router.push('/admin/products');
+    if (user && !loading) {
+      // Redirect based on user role
+      if (isAdmin(user.role)) {
+        router.push('/admin');
       } else {
         router.push('/');
       }
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
   return (
     <div className="w-full">

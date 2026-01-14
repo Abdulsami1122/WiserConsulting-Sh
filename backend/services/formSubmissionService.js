@@ -198,7 +198,7 @@ class FormSubmissionService {
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #2563eb;">Document Review Update</h2>
             <p>Dear ${submission.name},</p>
-            <p>Your visa assessment application has been reviewed. Here's an update:</p>
+            <p>Your form submission has been reviewed. Here's an update:</p>
             
             <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h3 style="color: #374151; margin-top: 0;">Document: ${document.originalname}</h3>
@@ -213,15 +213,14 @@ class FormSubmissionService {
             <div style="background-color: #dbeafe; padding: 15px; border-radius: 6px; margin: 20px 0;">
               <p style="margin: 0; color: #1e40af;">
                 <strong>Application Details:</strong><br>
-                Destination: ${submission.destinationCountry}<br>
-                Visa Type: ${submission.visaType}<br>
+                Form Type: ${submission.formType || 'Contact'}<br>
                 Status: ${submission.status}
               </p>
             </div>
             
             <p>If you have any questions, please don't hesitate to contact us.</p>
             
-            <p>Best regards,<br>Visa Assessment Team</p>
+            <p>Best regards,<br>WISER CONSULTING Team</p>
           </div>
         `
       };

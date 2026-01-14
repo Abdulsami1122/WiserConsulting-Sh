@@ -54,7 +54,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   // ✅ Already logged in but on login/register page → redirect properly
   if (user && isPublicPath) {
     if (isAdmin(user?.role)) {
-      router.replace('/admin/products');
+      router.replace('/admin');
     } else {
       router.replace('/');
     }

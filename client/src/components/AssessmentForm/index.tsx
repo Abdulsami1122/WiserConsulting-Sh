@@ -32,7 +32,7 @@ const countries = [
   "Other",
 ];
 
-const visaTypes = ["Tourist Visa", "Student Visa", "Transit Visa"];
+const projectTypes = ["Web Application", "Mobile App", "Enterprise Software", "E-Commerce Platform", "Custom Software"];
 
 interface AssessmentFormProps {
   isOpen: boolean;
@@ -108,7 +108,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="bg-slate-900 text-white px-8 py-6 flex justify-between items-center border-b border-slate-700">
           <div>
-            <h2 className="text-2xl font-bold mb-1">Free Visa Assessment</h2>
+            <h2 className="text-2xl font-bold mb-1">Free Software Consultation</h2>
             <p className="text-sm text-slate-300">Complete the form to get started</p>
           </div>
           <button
@@ -149,7 +149,7 @@ const AssessmentForm: React.FC<AssessmentFormProps> = ({ isOpen, onClose }) => {
                 validationErrors={validationErrors}
                 onInputChange={handleInputChange}
                 countries={countries}
-                visaTypes={visaTypes}
+                visaTypes={projectTypes}
               />
             )}
 

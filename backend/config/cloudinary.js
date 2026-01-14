@@ -33,7 +33,7 @@ const localStorage = multer.diskStorage({
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'visa-assessments',
+    folder: 'form-submissions',
     allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx'],
     // Remove transformation for PDFs and other documents
     transformation: (req, file) => {
@@ -144,7 +144,7 @@ const uploadFieldsLocal = uploadToLocal.fields([
 ]);
 
 // Function to upload local files to Cloudinary
-const uploadLocalToCloudinary = async (filePath, folder = 'visa-assessments') => {
+const uploadLocalToCloudinary = async (filePath, folder = 'form-submissions') => {
   try {
     // Determine resource type based on file extension
     const ext = path.extname(filePath).toLowerCase();

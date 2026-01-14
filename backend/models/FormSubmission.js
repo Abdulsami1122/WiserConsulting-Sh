@@ -21,32 +21,23 @@ const formSubmissionSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
-        destinationCountry: {
+        formType: {
             type: String,
             required: true,
             trim: true,
+            default: 'contact'
         },
-        otherCountry: {
+        subject: {
             type: String,
             trim: true,
         },
-        visaType: {
+        message: {
             type: String,
-            required: true,
             trim: true,
         },
-        fromDate: {
-            type: String,
-            required: true,
-        },
-        toDate: {
-            type: String,
-            required: true,
-        },
-        purpose: {
-            type: String,
-            required: true,
-            trim: true,
+        additionalData: {
+            type: mongoose.Schema.Types.Mixed,
+            default: {}
         },
         documents: [{
             fieldName: String,

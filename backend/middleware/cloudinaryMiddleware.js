@@ -56,7 +56,7 @@ const getThumbnailUrl = (publicId, width = 150, height = 150) => {
 };
 
 // Middleware to upload single file to Cloudinary
-const uploadSingleToCloudinary = async (file, folder = 'visa-assessments') => {
+const uploadSingleToCloudinary = async (file, folder = 'form-submissions') => {
   try {
     // Determine resource type based on file mimetype
     let resourceType = 'auto';
@@ -91,7 +91,7 @@ const uploadSingleToCloudinary = async (file, folder = 'visa-assessments') => {
 };
 
 // Middleware to upload local file to Cloudinary and delete local copy
-const uploadLocalToCloudinary = async (filePath, folder = 'visa-assessments') => {
+const uploadLocalToCloudinary = async (filePath, folder = 'form-submissions') => {
   try {
     // Determine resource type based on file extension
     const ext = path.extname(filePath).toLowerCase();

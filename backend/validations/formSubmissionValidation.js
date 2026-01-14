@@ -9,12 +9,10 @@ const createSubmissionSchema = z.object({
     name: z.string().min(1, 'Name is required').trim(),
     email: z.string().email('Invalid email format').trim().toLowerCase(),
     phone: z.string().min(1, 'Phone is required').trim(),
-    destinationCountry: z.string().min(1, 'Destination country is required').trim(),
-    otherCountry: z.string().trim().optional(),
-    visaType: z.string().min(1, 'Visa type is required').trim(),
-    fromDate: z.string().min(1, 'From date is required'),
-    toDate: z.string().min(1, 'To date is required'),
-    purpose: z.string().min(1, 'Purpose is required').trim()
+    formType: z.string().trim().default('contact'),
+    subject: z.string().trim().optional(),
+    message: z.string().trim().optional(),
+    additionalData: z.record(z.any()).optional()
   })
 });
 

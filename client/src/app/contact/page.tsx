@@ -1,0 +1,401 @@
+"use client";
+
+import React, { useState, FormEvent } from "react";
+import { motion } from "framer-motion";
+import { 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Send,
+  Clock,
+  MessageSquare,
+  CheckCircle2
+} from "lucide-react";
+
+const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
+
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to submit contact form');
+      }
+
+      const data = await res.json();
+      
+      if (data.success) {
+        setIsSubmitting(false);
+        setSubmitStatus("success");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: ""
+        });
+        
+        // Reset success message after 5 seconds
+        setTimeout(() => setSubmitStatus("idle"), 5000);
+      } else {
+        setIsSubmitting(false);
+        setSubmitStatus("error");
+        setTimeout(() => setSubmitStatus("idle"), 5000);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setIsSubmitting(false);
+      setSubmitStatus("error");
+      setTimeout(() => setSubmitStatus("idle"), 5000);
+    }
+  };
+
+  const contactInfo = [
+    {
+      icon: <Mail className="w-6 h-6" />,
+      title: "Email",
+      content: "taimour448@gmail.com",
+      link: "mailto:taimour448@gmail.com"
+    },
+    {
+      icon: <Phone className="w-6 h-6" />,
+      title: "Phone",
+      content: "+92 313 0922988",
+      link: "tel:+923130922988"
+    },
+    {
+      icon: <MapPin className="w-6 h-6" />,
+      title: "Address",
+      content: "Deans Trade Center, UG 390, Peshawar, Pakistan",
+      link: "https://www.google.com/maps/search/Deans+Trade+Center+UG+390+Peshawar"
+    },
+    {
+      icon: <Clock className="w-6 h-6" />,
+      title: "Business Hours",
+      content: "Monday - Saturday: 9:00 AM - 6:00 PM PKT",
+      link: "#"
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="relative text-white pt-32 pb-20 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed"
+          style={{
+            backgroundImage: 'url(/back.png)',
+            backgroundAttachment: 'fixed',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        ></div>
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/90"></div>
+        {/* Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              Get In Touch
+            </h1>
+            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+              Have a project in mind? We'd love to hear from you. 
+              Send us a message and we'll respond as soon as possible.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12">
+            {/* Contact Form */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl font-bold text-slate-900 mb-6">
+                Send Us a Message
+              </h2>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white text-slate-900"
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white text-slate-900"
+                      placeholder="john@example.com"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white text-slate-900"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="subject" className="block text-sm font-semibold text-slate-700 mb-2">
+                    Subject *
+                  </label>
+                  <select
+                    id="subject"
+                    name="subject"
+                    required
+                    value={formData.subject}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white text-slate-900"
+                  >
+                    <option value="">Select a subject</option>
+                    <option value="general">General Inquiry</option>
+                    <option value="project">Project Discussion</option>
+                    <option value="support">Technical Support</option>
+                    <option value="partnership">Partnership Opportunity</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="message" className="block text-sm font-semibold text-slate-700 mb-2">
+                    Message *
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    required
+                    rows={6}
+                    value={formData.message}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white text-slate-900 resize-none"
+                    placeholder="Tell us about your project or inquiry..."
+                  />
+                </div>
+                {submitStatus === "success" && (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <p className="text-sm text-green-600">
+                      Thank you! Your message has been sent successfully. We'll get back to you soon.
+                    </p>
+                  </div>
+                )}
+                {submitStatus === "error" && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-600">
+                      Something went wrong. Please try again later.
+                    </p>
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full px-6 py-3 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Message
+                      <Send className="w-5 h-5" />
+                    </>
+                  )}
+                </button>
+              </form>
+            </motion.div>
+
+            {/* Contact Information */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl font-bold text-slate-900 mb-6">
+                Contact Information
+              </h2>
+              <p className="text-slate-600 mb-8">
+                We're here to help! Reach out to us through any of the following channels, 
+                and we'll respond as quickly as possible.
+              </p>
+              <div className="space-y-6">
+                {contactInfo.map((info, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="flex gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                  >
+                    <div className="flex-shrink-0 w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-white">
+                      {info.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900 mb-1">
+                        {info.title}
+                      </h3>
+                      {info.title === "Phone" ? (
+                        <div className="flex flex-wrap gap-2">
+                          <a
+                            href="tel:+923130922988"
+                            className="text-slate-600 hover:text-slate-900 transition-colors"
+                          >
+                            +92 313 0922988
+                          </a>
+                          <span className="text-slate-400">|</span>
+                          <a
+                            href="tel:+923065779097"
+                            className="text-slate-600 hover:text-slate-900 transition-colors"
+                          >
+                            +92 3065779097
+                          </a>
+                        </div>
+                      ) : info.link !== "#" ? (
+                        <a
+                          href={info.link}
+                          className="text-slate-600 hover:text-slate-900 transition-colors"
+                        >
+                          {info.content}
+                        </a>
+                      ) : (
+                        <p className="text-slate-600">{info.content}</p>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Additional Info */}
+              <div className="mt-8 p-6 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl">
+                <MessageSquare className="w-8 h-8 text-slate-900 mb-4" />
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                  Quick Response Guarantee
+                </h3>
+                <p className="text-slate-600">
+                  We typically respond to all inquiries within 24 hours during business days. 
+                  For urgent matters, please call us directly.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Map Section */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="bg-white rounded-xl p-8"
+          >
+            <div className="text-center mb-6">
+              <MapPin className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                Visit Our Office
+              </h3>
+              <p className="text-slate-600 mb-2">
+                Deans Trade Center, UG 390
+              </p>
+              <p className="text-slate-600">
+                Peshawar, Khyber Pakhtunkhwa 25000, Pakistan
+              </p>
+            </div>
+            <div className="rounded-lg overflow-hidden shadow-lg">
+              <iframe
+                src="https://www.google.com/maps?q=Deans+Trade+Center+UG+390+Peshawar+Pakistan&output=embed&zoom=15&center=34.0009333,71.5451672"
+                width="100%"
+                height="450"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full"
+                title="WISER CONSULTING Office Location - Deans Trade Center, Peshawar"
+              ></iframe>
+            </div>
+            <div className="mt-6 text-center">
+              <a
+                href="https://www.google.com/maps/search/Deans+Trade+Center+UG+390+Peshawar"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                <MapPin className="w-5 h-5" />
+                Open in Google Maps
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Contact;

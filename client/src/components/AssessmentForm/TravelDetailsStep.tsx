@@ -27,7 +27,7 @@ export const TravelDetailsStep: React.FC<TravelDetailsStepProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-semibold text-slate-800 mb-2">
-            Destination Country <span className="text-red-500">*</span>
+            Target Market <span className="text-red-500">*</span>
           </label>
           <select
             name="destinationCountry"
@@ -49,7 +49,7 @@ export const TravelDetailsStep: React.FC<TravelDetailsStepProps> = ({
         </div>
         <div>
           <label className="block text-sm font-semibold text-slate-800 mb-2">
-            Visa Type <span className="text-red-500">*</span>
+            Project Type <span className="text-red-500">*</span>
           </label>
           <select
             name="visaType"
@@ -60,7 +60,7 @@ export const TravelDetailsStep: React.FC<TravelDetailsStepProps> = ({
             }`}
             required
           >
-            <option value="">Select visa type</option>
+            <option value="">Select project type</option>
             {visaTypes.map((v) => (
               <option key={v} value={v}>{v}</option>
             ))}
@@ -71,7 +71,7 @@ export const TravelDetailsStep: React.FC<TravelDetailsStepProps> = ({
         </div>
         <div>
           <label className="block text-sm font-semibold text-slate-800 mb-2">
-            Travel From Date <span className="text-red-500">*</span>
+            Project Start Date <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -89,7 +89,7 @@ export const TravelDetailsStep: React.FC<TravelDetailsStepProps> = ({
         </div>
         <div>
           <label className="block text-sm font-semibold text-slate-800 mb-2">
-            Travel To Date <span className="text-red-500">*</span>
+            Project Deadline <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -128,11 +128,11 @@ export const TravelDetailsStep: React.FC<TravelDetailsStepProps> = ({
         )}
         <div className="md:col-span-2">
           <label className="block text-sm font-semibold text-slate-800 mb-2">
-            Purpose of Travel <span className="text-red-500">*</span>
+            Project Description <span className="text-red-500">*</span>
           </label>
           <textarea
             name="purpose"
-            placeholder="Describe the purpose of your travel..."
+            placeholder="Describe your project requirements and goals..."
             value={formData.purpose}
             onChange={onInputChange}
             rows={4}

@@ -1,11 +1,10 @@
-import VisaConsultation from '@/components/VisaConsultation'
+import SoftwareConsulting from '@/components/SoftwareConsulting'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-      
-      <VisaConsultation/>
+      <SoftwareConsulting/>
     </div>
   )
 }

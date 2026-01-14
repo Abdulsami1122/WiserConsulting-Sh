@@ -14,9 +14,8 @@ const logger = {
   },
   
   error: (...args) => {
-    if (isDevelopment) {
-      console.error('[ERROR]', ...args);
-    }
+    // Always log errors in development, and also log in production for debugging
+    console.error('[ERROR]', ...args);
     // In production, send to logging service (e.g., Sentry, Loggly)
     // Example: loggingService.error(...args);
   },

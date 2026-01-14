@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WISER CONSULTING",
+  title: "WISER CONSULTING - Software House",
   description:
-    "Expert visa consultation services for students, professionals, and families. Get personalized immigration solutions.",
+    "Expert software consulting and development services. Custom software solutions, cloud migration, mobile apps, and enterprise systems. Transform your business with cutting-edge technology.",
 };
 
 export default function RootLayout({

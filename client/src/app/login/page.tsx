@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, FormEvent, useEffect } from "react";
+import React, { useState, FormEvent, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { login } from "@/redux/slices/auth/authSlice";
@@ -16,21 +16,54 @@ const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const { loading, error, success, user } = useAppSelector((state) => state.auth);
   const router = useRouter();
+  const hasRedirected = useRef(false);
+
+  // Helper function to check if user is admin (handles both number and string roles)
+  const isAdmin = (role: string | number | undefined): boolean => {
+    return role === 1 || role === '1' || role === 'admin';
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await dispatch(login({ email, password }));
+    try {
+      const result = await dispatch(login({ email, password })).unwrap();
+      
+      // Handle redirect immediately after successful login
+      if (result?.user) {
+        const loggedInUser = result.user;
+        console.log('Login successful, user:', loggedInUser);
+        console.log('User role:', loggedInUser.role, 'Is admin:', isAdmin(loggedInUser.role));
+        
+        // Redirect based on user role
+        if (isAdmin(loggedInUser.role)) {
+          console.log('Redirecting to /admin');
+          router.push("/admin");
+        } else {
+          console.log('Redirecting to /');
+          router.push("/");
+        }
+      }
+    } catch (error) {
+      // Error is handled by Redux state
+      console.error('Login error:', error);
+    }
   };
 
   useEffect(() => {
-    if (user) {
-      if (user.role === 1) {
-        router.push("/admin/products");
-      } else {
-        router.push("/");
+    // Redirect when user state is available and login is successful
+    // This is a fallback in case the handleSubmit redirect doesn't work
+    if (user && !loading && !hasRedirected.current) {
+      console.log('useEffect: User logged in, redirecting...', user);
+      const redirectPath = isAdmin(user.role) ? "/admin" : "/";
+      
+      // Only redirect if we're still on login/register page
+      if (window.location.pathname === "/login" || window.location.pathname === "/register") {
+        hasRedirected.current = true;
+        console.log('useEffect: Redirecting to', redirectPath);
+        router.push(redirectPath);
       }
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
@@ -50,7 +83,7 @@ const Login: React.FC = () => {
               Welcome Back
             </h2>
             <p className="text-slate-300 text-sm">
-              Sign in to continue your visa journey
+              Sign in to access your account
             </p>
           </div>
 

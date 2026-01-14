@@ -28,46 +28,102 @@ export interface User {
   
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
   
+  // ✅ Test backend connection
+  const testConnection = async (): Promise<boolean> => {
+    try {
+      const baseUrl = API_URL.replace('/api', '');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      
+      const response = await fetch(`${baseUrl}/health`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+      return response.ok;
+    } catch {
+      return false;
+    }
+  };
+
   // ✅ Login request
- // ✅ Login request
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
-  const response = await fetch(`${API_URL}/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-  });
+  try {
+    // Test connection first
+    const isConnected = await testConnection();
+    if (!isConnected) {
+      throw new Error('Unable to connect to server. Please check if the backend is running on port 5000.');
+    }
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Login failed');
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Login failed' }));
+      throw new Error(errorData.message || 'Login failed');
+    }
+
+    const responseData = await response.json();
+
+    // Backend returns: { success: true, message: "...", data: { user: {...}, token: "..." } }
+    const user = responseData.data?.user || responseData.user;
+    const token = responseData.data?.token || responseData.token;
+
+    // Store user + token in localStorage
+    if (user && token) {
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
+    }
+
+    // Return in expected format
+    return {
+      success: responseData.success || true,
+      message: responseData.message,
+      user,
+      token
+    };
+  } catch (error) {
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new Error('Unable to connect to server. Please check if the backend is running on port 5000.');
+    }
+    throw error;
   }
-
-  const data: LoginResponse = await response.json();
-
-  // Store user + token in localStorage
-  if (data.user && data.token) {
-    localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.setItem('token', data.token);
-  }
-
-  return data;
 };
 
   
   // ✅ Register request
   export const registerUser = async (name: string, email: string, password: string): Promise<RegisterResponse> => {
-    const res = await fetch(`${API_URL}/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
-  
-    const data: RegisterResponse = await res.json();
-    if (!res.ok) throw new Error(data.message || "Registration failed");
-  
-    return data;
+    try {
+      const res = await fetch(`${API_URL}/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: 'include',
+        body: JSON.stringify({ name, email, password }),
+      });
+    
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Registration failed' }));
+        throw new Error(errorData.message || "Registration failed");
+      }
+
+      const data: RegisterResponse = await res.json();
+      return data;
+    } catch (error) {
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to server. Please check if the backend is running.');
+      }
+      throw error;
+    }
   };
 
   // ✅ Google OAuth login
@@ -79,29 +135,47 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
   }
 
   export const googleLogin = async (accessToken: string): Promise<GoogleLoginResponse> => {
-    const response = await fetch(`${API_URL}/auth/google/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        access_token: accessToken,
-      }),
-    });
+    try {
+      const response = await fetch(`${API_URL}/auth/google/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          access_token: accessToken,
+        }),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Authentication failed');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Authentication failed' }));
+        throw new Error(errorData.message || 'Authentication failed');
+      }
+
+      const responseData = await response.json();
+
+      // Backend returns: { success: true, message: "...", data: { user: {...}, token: "..." } }
+      const user = responseData.data?.user || responseData.user;
+      const token = responseData.data?.token || responseData.token;
+
+      // Store user + token in localStorage
+      if (user && token) {
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('token', token);
+      }
+
+      // Return in expected format
+      return {
+        success: responseData.success || true,
+        message: responseData.message,
+        user,
+        token
+      };
+    } catch (error) {
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to server. Please check if the backend is running.');
+      }
+      throw error;
     }
-
-    const data: GoogleLoginResponse = await response.json();
-
-    // Store user + token in localStorage
-    if (data.user && data.token) {
-      localStorage.setItem('user', JSON.stringify(data.user));
-      localStorage.setItem('token', data.token);
-    }
-
-    return data;
   };
   

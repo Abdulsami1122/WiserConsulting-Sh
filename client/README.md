@@ -1,33 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wiser Consulting - Software House
+
+A modern, professional website for Wiser Consulting Software House built with Next.js, React, and TypeScript.
+
+## About
+
+Wiser Consulting is a leading software consulting and development company specializing in:
+- Custom Software Development
+- Cloud Solutions & Migration
+- Mobile App Development
+- Data Engineering & Analytics
+- System Architecture & Design
+- DevOps & CI/CD
+
+## Tech Stack
+
+- **Framework**: Next.js 15.4.5
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4
+- **Animations**: Framer Motion
+- **State Management**: Redux Toolkit
+- **UI Components**: Lucide React Icons
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+
+```bash
+npm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/app/` - Next.js app router pages and layouts
+- `src/components/` - React components
+- `src/redux/` - Redux store and slices
+- `src/services/` - API services
+- `public/` - Static assets
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Modern, responsive design
+- Smooth animations and transitions
+- Professional UI/UX
+- SEO optimized
+- Fast performance
+- Mobile-first approach
 
 ## Deploy on Vercel
 
