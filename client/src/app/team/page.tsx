@@ -298,9 +298,19 @@ const Team = () => {
                     className="cursor-pointer"
                   >
                     <div className="flex items-start gap-4 mb-4">
-                      <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center text-5xl flex-shrink-0">
-                        {member.image}
-                      </div>
+                      {member.image && (member.image.startsWith('http') || member.image.startsWith('/')) ? (
+                        <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 border-slate-200">
+                          <img
+                            src={member.image}
+                            alt={member.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center text-5xl flex-shrink-0">
+                          {member.image || '👨‍💼'}
+                        </div>
+                      )}
                       <div className="flex-1">
                         <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-slate-700 transition-colors">
                           {member.name}

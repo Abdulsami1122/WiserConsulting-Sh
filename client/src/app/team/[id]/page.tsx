@@ -134,9 +134,19 @@ const TeamMemberPage = () => {
             transition={{ duration: 0.6 }}
             className="flex flex-col md:flex-row items-center md:items-start gap-8"
           >
-            <div className="w-48 h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-9xl flex-shrink-0">
-              {member.image}
-            </div>
+            {member.image && (member.image.startsWith('http') || member.image.startsWith('/')) ? (
+              <div className="w-48 h-48 rounded-2xl overflow-hidden flex-shrink-0 border-4 border-white/20 shadow-xl">
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-48 h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-9xl flex-shrink-0">
+                {member.image || '👨‍💼'}
+              </div>
+            )}
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-5xl md:text-6xl font-bold mb-4">
                 {member.name}

@@ -45,6 +45,8 @@ const AdminTeam = () => {
   const [skillInput, setSkillInput] = useState('');
   const [expertiseInput, setExpertiseInput] = useState('');
   const [achievementInput, setAchievementInput] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMembers();
@@ -114,14 +116,46 @@ const AdminTeam = () => {
         : `${API_URL}/admin/team`;
       const method = editingMember ? 'PUT' : 'POST';
 
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('role', formData.role);
+      formDataToSend.append('bio', formData.bio);
+      formDataToSend.append('fullBio', formData.fullBio);
+      formDataToSend.append('email', formData.email || '');
+      formDataToSend.append('linkedin', formData.linkedin || '');
+      formDataToSend.append('github', formData.github || '');
+      formDataToSend.append('twitter', formData.twitter || '');
+      formDataToSend.append('order', formData.order.toString());
+      formDataToSend.append('isActive', formData.isActive.toString());
+      
+      // Append arrays
+      formData.skills.forEach((skill, index) => {
+        formDataToSend.append(`skills[${index}]`, skill);
+      });
+      formData.expertise.forEach((exp, index) => {
+        formDataToSend.append(`expertise[${index}]`, exp);
+      });
+      formData.achievements.forEach((ach, index) => {
+        formDataToSend.append(`achievements[${index}]`, ach);
+      });
+      
+      // Append image file if selected, otherwise append existing image URL or emoji
+      if (imageFile) {
+        formDataToSend.append('image', imageFile);
+      } else if (formData.image && !formData.image.startsWith('http')) {
+        // If it's an emoji or text, send it as a regular field
+        formDataToSend.append('image', formData.image);
+      }
+
       const res = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
+          // Don't set Content-Type header, let browser set it with boundary for FormData
         },
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: formDataToSend,
       });
 
       if (!res.ok) {
@@ -190,6 +224,13 @@ const AdminTeam = () => {
       order: member.order,
       isActive: member.isActive,
     });
+    // Set image preview if it's a URL, otherwise clear it
+    if (member.image && (member.image.startsWith('http') || member.image.startsWith('/'))) {
+      setImagePreview(member.image);
+    } else {
+      setImagePreview(null);
+    }
+    setImageFile(null);
     setShowModal(true);
   };
 
@@ -214,6 +255,31 @@ const AdminTeam = () => {
     setSkillInput('');
     setExpertiseInput('');
     setAchievementInput('');
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+      setImageFile(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const addItem = (type: 'skills' | 'expertise' | 'achievements') => {
@@ -264,7 +330,15 @@ const AdminTeam = () => {
         {members.map((member) => (
           <div key={member._id} className="bg-white rounded-lg shadow p-6">
             <div className="flex items-start gap-4 mb-4">
-              <div className="text-5xl">{member.image}</div>
+              {member.image && (member.image.startsWith('http') || member.image.startsWith('/')) ? (
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-16 h-16 object-cover rounded-full border-2 border-gray-200"
+                />
+              ) : (
+                <div className="text-5xl">{member.image || '👨‍💼'}</div>
+              )}
               <div className="flex-1">
                 <h3 className="font-bold text-lg">{member.name}</h3>
                 <p className="text-sm text-gray-600">{member.role}</p>
@@ -353,13 +427,34 @@ const AdminTeam = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Image (Emoji)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
                   <input
-                    type="text"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   />
+                  {imagePreview && (
+                    <div className="mt-2">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-24 h-24 object-cover rounded-lg border border-gray-300"
+                      />
+                    </div>
+                  )}
+                  {!imagePreview && formData.image && !formData.image.startsWith('http') && (
+                    <div className="mt-2 text-4xl">{formData.image}</div>
+                  )}
+                  {!imagePreview && formData.image && formData.image.startsWith('http') && (
+                    <div className="mt-2">
+                      <img
+                        src={formData.image}
+                        alt="Current"
+                        className="w-24 h-24 object-cover rounded-lg border border-gray-300"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>

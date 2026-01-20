@@ -70,6 +70,31 @@ const cloudinaryStorage = new CloudinaryStorage({
   },
 });
 
+// Configure Cloudinary storage for team member images
+const teamImageStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'team-members',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { 
+        width: 500, 
+        height: 500, 
+        crop: 'fill',
+        gravity: 'face',
+        quality: 'auto',
+        fetch_format: 'auto'
+      }
+    ],
+    // Generate unique filenames
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      return `team-member-${uniqueSuffix}`;
+    },
+    resource_type: 'image',
+  },
+});
+
 // File filter function
 const fileFilter = (req, file, cb) => {
   const allowedTypes = [
@@ -89,6 +114,23 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// Image-only file filter for team member photos
+const imageFileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+  ];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type. Only images (JPG, PNG, GIF, WEBP) are allowed.'), false);
+  }
+};
+
 // Create multer upload instances
 const uploadToCloudinary = multer({
   storage: cloudinaryStorage,
@@ -104,6 +146,15 @@ const uploadToLocal = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: fileFilter,
+});
+
+// Multer instance for team member image uploads (single image)
+const uploadTeamImage = multer({
+  storage: teamImageStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit for images
+  },
+  fileFilter: imageFileFilter,
 });
 
 // Configure upload fields for both local and cloudinary
@@ -229,6 +280,7 @@ module.exports = {
   cloudinary,
   uploadToCloudinary,
   uploadToLocal,
+  uploadTeamImage,
   uploadFields,
   uploadFieldsLocal,
   uploadLocalToCloudinary,

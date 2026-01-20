@@ -4,6 +4,72 @@ const apiResponse = require('../utils/apiResponse');
 const logger = require('../utils/logger');
 
 class TeamController {
+  // Helper function to parse FormData arrays
+  parseFormDataArrays(body) {
+    const parsed = { ...body };
+    
+    // Helper to parse array fields
+    const parseArrayField = (fieldName) => {
+      // Check if it's already an array
+      if (Array.isArray(body[fieldName])) {
+        return body[fieldName];
+      }
+      
+      // Check if it's an object with numeric keys (parsed by some parsers)
+      if (body[fieldName] && typeof body[fieldName] === 'object' && !Array.isArray(body[fieldName])) {
+        const obj = body[fieldName];
+        const keys = Object.keys(obj).map(k => parseInt(k)).sort((a, b) => a - b);
+        return keys.map(k => obj[k]).filter(v => v !== undefined && v !== null);
+      }
+      
+      // Check for indexed array format like skills[0], skills[1]
+      const indexedKeys = Object.keys(body).filter(key => {
+        const match = key.match(new RegExp(`^${fieldName}\\[(\\d+)\\]$`));
+        return match !== null;
+      });
+      
+      if (indexedKeys.length > 0) {
+        return indexedKeys
+          .sort((a, b) => {
+            const indexA = parseInt(a.match(/\[(\d+)\]/)?.[1] || '0');
+            const indexB = parseInt(b.match(/\[(\d+)\]/)?.[1] || '0');
+            return indexA - indexB;
+          })
+          .map(key => body[key])
+          .filter(v => v !== undefined && v !== null && v !== '');
+      }
+      
+      // Check if it's a single string value
+      if (typeof body[fieldName] === 'string' && body[fieldName].trim() !== '') {
+        return [body[fieldName]];
+      }
+      
+      return [];
+    };
+    
+    // Parse array fields
+    parsed.skills = parseArrayField('skills');
+    parsed.expertise = parseArrayField('expertise');
+    parsed.achievements = parseArrayField('achievements');
+    
+    // Parse boolean and number fields
+    if (parsed.isActive !== undefined) {
+      parsed.isActive = parsed.isActive === 'true' || parsed.isActive === true;
+    }
+    if (parsed.order !== undefined) {
+      parsed.order = parseInt(parsed.order) || 0;
+    }
+    
+    // Remove indexed keys from parsed object to avoid confusion
+    Object.keys(parsed).forEach(key => {
+      if (key.match(/^(skills|expertise|achievements)\[\d+\]$/)) {
+        delete parsed[key];
+      }
+    });
+    
+    return parsed;
+  }
+
   // Get all team members
   getAllTeamMembers = asyncHandler(async (req, res) => {
     const { isActive, isDeleted } = req.query;
@@ -54,7 +120,18 @@ class TeamController {
 
   // Create team member
   createTeamMember = asyncHandler(async (req, res) => {
-    const member = await Team.create(req.body);
+    // Parse FormData arrays and other fields
+    const memberData = this.parseFormDataArrays(req.body);
+    
+    // If an image file was uploaded, use the Cloudinary URL
+    if (req.file && req.file.path) {
+      memberData.image = req.file.path; // Cloudinary URL
+    } else if (!memberData.image) {
+      // Default to emoji if no image provided
+      memberData.image = '👨‍💼';
+    }
+    
+    const member = await Team.create(memberData);
     logger.info(`Team member created: ${member._id}`);
     return apiResponse.success(res, member, 'Team member created successfully', 201);
   });
@@ -62,9 +139,22 @@ class TeamController {
   // Update team member
   updateTeamMember = asyncHandler(async (req, res) => {
     const { id } = req.params;
+    // Parse FormData arrays and other fields
+    const updateData = this.parseFormDataArrays(req.body);
+    
+    // If an image file was uploaded, use the Cloudinary URL
+    if (req.file && req.file.path) {
+      updateData.image = req.file.path; // Cloudinary URL
+    }
+    // If no new image uploaded and image field is empty string, keep existing image
+    // (don't update image field if it's not provided)
+    if (updateData.image === '') {
+      delete updateData.image;
+    }
+    
     const member = await Team.findByIdAndUpdate(
       id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
     
