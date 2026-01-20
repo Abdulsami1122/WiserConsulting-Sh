@@ -35,13 +35,13 @@ const Login: React.FC = () => {
         console.log('User role:', loggedInUser.role, 'Is admin:', isAdmin(loggedInUser.role));
         
         // Redirect based on user role
-        if (isAdmin(loggedInUser.role)) {
-          console.log('Redirecting to /admin');
+          if (isAdmin(loggedInUser.role)) {
+            console.log('Redirecting to /admin');
           router.push("/admin");
-        } else {
-          console.log('Redirecting to /');
+          } else {
+            console.log('Redirecting to /');
           router.push("/");
-        }
+          }
       }
     } catch (error) {
       // Error is handled by Redux state
@@ -59,7 +59,7 @@ const Login: React.FC = () => {
       // Only redirect if we're still on login/register page
       if (window.location.pathname === "/login" || window.location.pathname === "/register") {
         hasRedirected.current = true;
-        console.log('useEffect: Redirecting to', redirectPath);
+          console.log('useEffect: Redirecting to', redirectPath);
         router.push(redirectPath);
       }
     }

@@ -15,7 +15,12 @@ export interface UsersResponse {
 }
 
 export const fetchAllUsers = async (): Promise<UsersResponse> => {
+  const token = localStorage.getItem('token');
   const response = await fetch(`${API_URL}/all-users`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` })
+    },
     credentials: 'include'
   });
 
@@ -23,21 +28,28 @@ export const fetchAllUsers = async (): Promise<UsersResponse> => {
     throw new Error('Failed to fetch users');
   }
 
-  return await response.json();
+  const data = await response.json();
+  // Backend returns { success: true, data: { users: [...] }, meta: {...} }
+  return {
+    users: data.data?.users || data.users || []
+  };
 };
 
 export const updateUserRole = async (userId: string, role: number): Promise<void> => {
+  const token = localStorage.getItem('token');
   const response = await fetch(`${API_URL}/update-user-role/${userId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` })
     },
     credentials: 'include',
     body: JSON.stringify({ role })
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update user role');
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to update user role');
   }
 };
 

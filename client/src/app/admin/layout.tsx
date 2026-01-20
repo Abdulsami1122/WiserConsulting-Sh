@@ -169,25 +169,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         >
           <div className="h-full overflow-y-auto">
             <nav className="mt-4 sm:mt-8 px-3 sm:px-4 space-y-2">
-              {navigation.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
+            {navigation.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
                     onClick={() => setSidebarOpen(false)}
                     className={`flex items-center px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-medium rounded-lg transition-colors ${
-                      isActive
-                        ? "bg-green-100 text-green-900 border-r-2 border-green-500"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    }`}
-                  >
+                    isActive
+                      ? "bg-green-100 text-green-900 border-r-2 border-green-500"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
                     <span className="mr-3 text-base">{item.icon}</span>
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </nav>
+                  {item.name}
+                </Link>
+              );
+            })}
+          </nav>
           </div>
         </aside>
 

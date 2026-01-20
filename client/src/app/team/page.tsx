@@ -41,6 +41,7 @@ const Team = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTeamMembers();
@@ -48,8 +49,13 @@ const Team = () => {
 
   const fetchTeamMembers = async () => {
     try {
+      setLoading(true);
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const url = `${API_URL}/team?isActive=true`;
+      
+      // Add timeout to fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       const res = await fetch(url, {
         method: 'GET',
@@ -58,7 +64,10 @@ const Team = () => {
           'Accept': 'application/json',
         },
         credentials: 'include',
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         let errorText = '';
@@ -74,33 +83,69 @@ const Team = () => {
       const data = await res.json();
       console.log('Team members response:', data);
       
+      // Helper function to sort team members: Full Stack and MERN Stack first
+      const sortTeamMembers = (members: TeamMember[]): TeamMember[] => {
+        return members.sort((a, b) => {
+          const roleA = a.role?.toLowerCase() || '';
+          const roleB = b.role?.toLowerCase() || '';
+          
+          // Priority order: Full Stack > MERN Stack > Others
+          const getPriority = (role: string) => {
+            if (role.includes('full stack')) return 1;
+            if (role.includes('mern stack')) return 2;
+            return 3;
+          };
+          
+          const priorityA = getPriority(roleA);
+          const priorityB = getPriority(roleB);
+          
+          if (priorityA !== priorityB) {
+            return priorityA - priorityB;
+          }
+          
+          // If same priority, sort by order field, then by name
+          if (a.order !== b.order) {
+            return a.order - b.order;
+          }
+          return a.name.localeCompare(b.name);
+        });
+      };
+      
       if (data.success) {
+        let members: TeamMember[] = [];
         if (Array.isArray(data.data)) {
-          setTeamMembers(data.data);
+          members = data.data;
         } else if (Array.isArray(data)) {
           // Handle case where data is directly an array
-          setTeamMembers(data);
+          members = data;
         } else {
           console.warn('Unexpected API response format:', data);
           setTeamMembers([]);
+          return;
         }
+        // Sort members before setting
+        setTeamMembers(sortTeamMembers(members));
       } else {
         console.warn('API returned success: false', data);
         setTeamMembers([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching team members:', error);
-      // Check if it's a network error
-      if (error instanceof TypeError) {
-        if (error.message.includes('fetch') || error.message.includes('Failed')) {
-          console.error('Network error: Backend might not be running on port 5000 or CORS issue');
-          console.error('Please ensure:');
-          console.error('1. Backend server is running (node index.js in backend folder)');
-          console.error('2. Backend is accessible at http://localhost:5000');
-          console.error('3. CORS is properly configured');
-        }
+      
+      // Handle different types of errors
+      let errorMessage = 'Failed to load team members. ';
+      if (error.name === 'AbortError') {
+        errorMessage += 'Request timed out. Please check your connection and try again.';
+      } else if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        errorMessage += 'Unable to connect to the server. Please ensure the backend is running on port 5000.';
+      } else if (error.message) {
+        errorMessage += error.message;
+      } else {
+        errorMessage += 'Please try again later.';
       }
-      // Keep empty array on error
+      
+      setError(errorMessage);
+      // Keep empty array on error - page will show empty state
       setTeamMembers([]);
     } finally {
       setLoading(false);
@@ -206,8 +251,28 @@ const Team = () => {
 
       {/* Team Grid */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredMembers.length === 0 && !loading ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[300px] flex items-center justify-center">
+          {loading ? (
+            <div className="text-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900 mx-auto mb-4"></div>
+              <p className="text-slate-600 text-lg">Loading team members...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+                <p className="text-red-800 text-lg mb-4">{error}</p>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    fetchTeamMembers();
+                  }}
+                  className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          ) : filteredMembers.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-slate-600 text-lg mb-4">No team members found.</p>
               <button
@@ -217,7 +282,7 @@ const Team = () => {
                 Retry
               </button>
             </div>
-          ) : filteredMembers.length > 0 ? (
+          ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredMembers.map((member, index) => (
               <motion.div
@@ -317,7 +382,7 @@ const Team = () => {
               </motion.div>
               ))}
             </div>
-          ) : null}
+          )}
         </div>
       </section>
 

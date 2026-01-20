@@ -94,7 +94,7 @@ const startServer = async () => {
     app.listen(PORT, () => {
       logger.info(`✅ Server running on port ${PORT}`);
       logger.info(`✅ Health check available at http://localhost:${PORT}/health`);
-    });
+});
   } catch (error) {
     logger.error('Failed to start server:', error);
     console.error('Full error details:', error);

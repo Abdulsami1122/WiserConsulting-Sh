@@ -15,7 +15,29 @@ class TeamController {
     const teamMembers = await Team.find(filter)
       .sort({ order: 1, createdAt: -1 });
     
-    return apiResponse.success(res, teamMembers, 'Team members retrieved successfully');
+    // Sort by role priority: Full Stack and MERN Stack first
+    const sortedMembers = teamMembers.sort((a, b) => {
+      const roleA = (a.role || '').toLowerCase();
+      const roleB = (b.role || '').toLowerCase();
+      
+      const getPriority = (role) => {
+        if (role.includes('full stack')) return 1;
+        if (role.includes('mern stack')) return 2;
+        return 3;
+      };
+      
+      const priorityA = getPriority(roleA);
+      const priorityB = getPriority(roleB);
+      
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      
+      // If same priority, maintain existing order
+      return 0;
+    });
+    
+    return apiResponse.success(res, sortedMembers, 'Team members retrieved successfully');
   });
 
   // Get single team member

@@ -68,7 +68,33 @@ const AdminTeam = () => {
       
       const data = await res.json();
       if (data.success) {
-        setMembers(data.data || []);
+        // Sort members: Full Stack and MERN Stack first, then others
+        const sortedMembers = (data.data || []).sort((a: TeamMember, b: TeamMember) => {
+          const roleA = a.role?.toLowerCase() || '';
+          const roleB = b.role?.toLowerCase() || '';
+          
+          // Priority order: Full Stack > MERN Stack > Others
+          const getPriority = (role: string) => {
+            if (role.includes('full stack')) return 1;
+            if (role.includes('mern stack')) return 2;
+            return 3;
+          };
+          
+          const priorityA = getPriority(roleA);
+          const priorityB = getPriority(roleB);
+          
+          if (priorityA !== priorityB) {
+            return priorityA - priorityB;
+          }
+          
+          // If same priority, sort by order field, then by name
+          if (a.order !== b.order) {
+            return a.order - b.order;
+          }
+          return a.name.localeCompare(b.name);
+        });
+        
+        setMembers(sortedMembers);
       }
     } catch (error) {
       console.error('Error fetching team members:', error);
@@ -292,13 +318,18 @@ const AdminTeam = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     required
-                  />
+                  >
+                    <option value="">Select a role</option>
+                    <option value="Full Stack Developer">Full Stack Developer</option>
+                    <option value="MERN Stack Developer">MERN Stack Developer</option>
+                    <option value="Frontend Developer">Frontend Developer</option>
+                    <option value="Mobile App Developer">Mobile App Developer</option>
+                  </select>
                 </div>
               </div>
               <div>
