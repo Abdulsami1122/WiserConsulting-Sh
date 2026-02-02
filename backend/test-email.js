@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 
 console.log('🔍 Testing Email Configuration...\n');
 
-// Check environment variable
+// Check environment variabl
 console.log('Environment Variables Check:');
 console.log('EMAIL_USER:', process.env.EMAIL_USER ? '✅ Set' : '❌ Missing');
 console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ Set' : '❌ Missing');
