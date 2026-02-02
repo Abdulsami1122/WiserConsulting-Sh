@@ -166,11 +166,37 @@ const Team = () => {
     fetchTeamMembers();
   };
 
-  const filteredMembers = activeFilter === "all" 
-    ? teamMembers 
-    : teamMembers.filter(member => 
-        member.expertise && member.expertise.includes(activeFilter)
-      );
+  const filteredMembers = (() => {
+    if (activeFilter === "all") return teamMembers;
+
+    const filterName = activeFilter.toLowerCase();
+
+    return teamMembers.filter((member) => {
+      const expertise = (member.expertise || []).map((e) => String(e).toLowerCase());
+      const skills = (member.skills || []).map((s) => String(s).toLowerCase());
+      const role = String(member.role || '').toLowerCase();
+
+      // Direct match by expertise
+      if (expertise.includes(filterName)) return true;
+
+      // Check for partial matches in expertise (word-based matching)
+      if (expertise.some((e) => e.includes(filterName) || filterName.includes(e))) return true;
+
+      // Check for matches in skills
+      if (skills.includes(filterName)) return true;
+      if (skills.some((s) => s.includes(filterName) || filterName.includes(s))) return true;
+
+      // Treat MERN stack members as both frontend and backend
+      if (filterName === 'frontend development' || filterName === 'backend development') {
+        if (expertise.includes('mern stack') || expertise.includes('mern') || role.includes('mern')) return true;
+      }
+
+      // Allow role-based matches (e.g., role contains filter or vice versa)
+      if (role.includes(filterName) || filterName.includes(role)) return true;
+
+      return false;
+    });
+  })();
 
   if (loading) {
     return (
