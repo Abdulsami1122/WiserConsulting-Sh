@@ -148,6 +148,11 @@ const AdminPortfolio = () => {
     });
   };
 
+  const handleAddProjectPic = () => {
+    // Logic to handle adding project picture
+    // This could involve opening a modal or redirecting to a file upload page
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">

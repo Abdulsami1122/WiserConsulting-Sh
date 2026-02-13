@@ -1,7 +1,7 @@
 // Admin service layer - all admin API calls
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-// ============ Users Service ============
+// ============ Users Service ==========
 export interface AdminUser {
   _id: string;
   name: string;

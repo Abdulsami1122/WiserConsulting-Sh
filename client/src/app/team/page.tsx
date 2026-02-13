@@ -155,6 +155,7 @@ const Team = () => {
   const skills = [
     { name: "Frontend Development", icon: <Code2 className="w-5 h-5" /> },
     { name: "Backend Development", icon: <Database className="w-5 h-5" /> },
+    { name: "MERN Stack", icon: <Cpu className="w-5 h-5" /> },
     { name: "Cloud Architecture", icon: <Cloud className="w-5 h-5" /> },
     { name: "Mobile Development", icon: <Smartphone className="w-5 h-5" /> },
     { name: "Full Stack", icon: <Globe2 className="w-5 h-5" /> },
@@ -172,27 +173,38 @@ const Team = () => {
     const filterName = activeFilter.toLowerCase();
 
     return teamMembers.filter((member) => {
-      const expertise = (member.expertise || []).map((e) => String(e).toLowerCase());
-      const skills = (member.skills || []).map((s) => String(s).toLowerCase());
       const role = String(member.role || '').toLowerCase();
-
-      // Direct match by expertise
-      if (expertise.includes(filterName)) return true;
-
-      // Check for partial matches in expertise (word-based matching)
-      if (expertise.some((e) => e.includes(filterName) || filterName.includes(e))) return true;
-
-      // Check for matches in skills
-      if (skills.includes(filterName)) return true;
-      if (skills.some((s) => s.includes(filterName) || filterName.includes(s))) return true;
-
-      // Treat MERN stack members as both frontend and backend
-      if (filterName === 'frontend development' || filterName === 'backend development') {
-        if (expertise.includes('mern stack') || expertise.includes('mern') || role.includes('mern')) return true;
+      const expertise = (member.expertise || []).map((e) => String(e).toLowerCase());
+      
+      // Frontend Development filter
+      if (filterName === 'frontend development') {
+        return role.includes('frontend') || expertise.includes('frontend development');
       }
-
-      // Allow role-based matches (e.g., role contains filter or vice versa)
-      if (role.includes(filterName) || filterName.includes(role)) return true;
+      
+      // Backend Development filter
+      if (filterName === 'backend development') {
+        return role.includes('backend') || expertise.includes('backend development');
+      }
+      
+      // MERN Stack filter
+      if (filterName === 'mern stack') {
+        return role.includes('mern') || expertise.includes('mern stack') || expertise.includes('mern');
+      }
+      
+      // Cloud Architecture filter
+      if (filterName === 'cloud architecture') {
+        return role.includes('cloud') || expertise.includes('cloud architecture');
+      }
+      
+      // Mobile Development filter
+      if (filterName === 'mobile development') {
+        return role.includes('mobile') || expertise.includes('mobile development');
+      }
+      
+      // Full Stack filter
+      if (filterName === 'full stack') {
+        return role.includes('full stack') || expertise.includes('full stack');
+      }
 
       return false;
     });
