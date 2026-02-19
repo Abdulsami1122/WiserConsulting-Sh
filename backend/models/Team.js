@@ -8,9 +8,15 @@ const teamSchema = new mongoose.Schema(
       trim: true,
     },
     role: {
-      type: String,
+      type: [String],
       required: true,
-      trim: true,
+      default: [],
+      validate: {
+        validator: function(v) {
+          return v.length > 0; // At least 1 role required
+        },
+        message: 'Team member must have at least 1 role'
+      }
     },
     bio: {
       type: String,

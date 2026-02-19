@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Globe2, 
@@ -18,99 +18,65 @@ import {
   UserCheck
 } from "lucide-react";
 
+interface PortfolioProject {
+  _id: string;
+  title: string;
+  category: string;
+  description: string;
+  image: string;
+  technologies: string[];
+  link?: string;
+  isActive: boolean;
+}
+
 const Portfolio = () => {
   const [activeFilter, setActiveFilter] = useState("all");
+  const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const categories = [
     { id: "all", label: "All Projects" },
     { id: "web", label: "Web Applications" },
     { id: "mobile", label: "Mobile Apps" },
-    { id: "enterprise", label: "Enterprise Solutions" }
+    { id: "enterprise", label: "Enterprise Solutions" },
+    { id: "other", label: "Other Projects" }
   ];
 
-  const projects = [
-    {
-      id: 1,
-      title: "E-Commerce Platform",
-      category: "web",
-      description: "A full-featured e-commerce platform with payment integration, inventory management, and analytics dashboard.",
-      image: "🛒",
-      technologies: ["React", "Node.js", "MongoDB", "Stripe"],
-      link: "#"
-    },
-    {
-      id: 2,
-      title: "Healthcare Management System",
-      category: "enterprise",
-      description: "Comprehensive healthcare management system for hospitals with patient records, scheduling, and billing.",
-      image: "🏥",
-      technologies: ["Angular", "Spring Boot", "PostgreSQL", "Docker"],
-      link: "#"
-    },
-    {
-      id: 3,
-      title: "Fitness Tracking App",
-      category: "mobile",
-      description: "Cross-platform mobile app for fitness tracking with workout plans, progress monitoring, and social features.",
-      image: "💪",
-      technologies: ["React Native", "Firebase", "Redux", "Charts"],
-      link: "#"
-    },
-    {
-      id: 4,
-      title: "Financial Analytics Dashboard",
-      category: "web",
-      description: "Real-time financial analytics dashboard with data visualization, reporting, and forecasting capabilities.",
-      image: "📊",
-      technologies: ["Vue.js", "Python", "Django", "Chart.js"],
-      link: "#"
-    },
-    {
-      id: 5,
-      title: "Learning Management System",
-      category: "enterprise",
-      description: "Enterprise LMS platform for online education with course management, assessments, and progress tracking.",
-      image: "🎓",
-      technologies: ["Next.js", "Node.js", "MongoDB", "AWS"],
-      link: "#"
-    },
-    {
-      id: 6,
-      title: "Food Delivery App",
-      category: "mobile",
-      description: "Mobile app for food delivery with real-time tracking, multiple payment options, and restaurant management.",
-      image: "🍕",
-      technologies: ["Flutter", "Node.js", "MongoDB", "Google Maps"],
-      link: "#"
-    },
-    {
-      id: 7,
-      title: "Real Estate Platform",
-      category: "web",
-      description: "Property listing and management platform with virtual tours, mortgage calculator, and agent tools.",
-      image: "🏠",
-      technologies: ["React", "Express.js", "PostgreSQL", "AWS S3"],
-      link: "#"
-    },
-    {
-      id: 8,
-      title: "Supply Chain Management",
-      category: "enterprise",
-      description: "End-to-end supply chain management system with inventory tracking, logistics, and supplier management.",
-      image: "📦",
-      technologies: ["Angular", "Java", "MySQL", "Kubernetes"],
-      link: "#"
-    },
-    {
-      id: 9,
-      title: "Social Media Analytics",
-      category: "web",
-      description: "Social media analytics platform with sentiment analysis, engagement metrics, and content scheduling.",
-      image: "📱",
-      technologies: ["React", "Python", "Django", "TensorFlow"],
-      link: "#"
+  useEffect(() => {
+    fetchPortfolios();
+  }, []);
+
+  const fetchPortfolios = async () => {
+    try {
+      setLoading(true);
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${API_URL}/portfolios?isActive=true`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch portfolios');
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        setProjects(data.data || []);
+      } else {
+        throw new Error(data.message || 'Failed to fetch portfolios');
+      }
+    } catch (error) {
+      console.error('Error fetching portfolios:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load portfolios');
+      // Fallback to empty array if API fails
+      setProjects([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const filteredProjects = activeFilter === "all" 
     ? projects 
@@ -229,49 +195,85 @@ const Portfolio = () => {
       {/* Projects Grid */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-xl transition-all group"
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-red-600 mb-4">{error}</p>
+              <button
+                onClick={fetchPortfolios}
+                className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
               >
-                <div className="bg-gradient-to-br from-slate-100 to-slate-200 h-48 flex items-center justify-center text-6xl">
-                  {project.image}
-                </div>
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-xl font-bold text-slate-900">
-                      {project.title}
-                    </h3>
-                    <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-900 transition-colors" />
+                Retry
+              </button>
+            </div>
+          ) : filteredProjects.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-slate-600 text-lg">No projects found.</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredProjects.map((project, index) => (
+                <motion.div
+                  key={project._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-xl transition-all group"
+                >
+                  <div className="bg-gradient-to-br from-slate-100 to-slate-200 h-48 flex items-center justify-center overflow-hidden">
+                    {project.image && (project.image.startsWith('http') || project.image.startsWith('/')) ? (
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-6xl">{project.image || '🛒'}</div>
+                    )}
                   </div>
-                  <p className="text-slate-600 mb-4">
-                    {project.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.technologies.map((tech, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full"
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-xl font-bold text-slate-900">
+                        {project.title}
+                      </h3>
+                      {project.link && (
+                        <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-900 transition-colors" />
+                      )}
+                    </div>
+                    <p className="text-slate-600 mb-4">
+                      {project.description}
+                    </p>
+                    {project.technologies && project.technologies.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {project.technologies.map((tech, idx) => (
+                          <span
+                            key={idx}
+                            className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {project.link && (
+                      <a
+                        href={project.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-slate-900 font-semibold hover:underline inline-flex items-center gap-2"
                       >
-                        {tech}
-                      </span>
-                    ))}
+                        View Project
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
                   </div>
-                  <a
-                    href={project.link}
-                    className="text-slate-900 font-semibold hover:underline inline-flex items-center gap-2"
-                  >
-                    View Project
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

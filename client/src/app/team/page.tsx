@@ -15,13 +15,14 @@ import {
   Cloud,
   Smartphone,
   Globe2,
-  Cpu
+  Briefcase,
+  UserCircle
 } from "lucide-react";
 
 interface TeamMember {
   _id: string;
   name: string;
-  role: string;
+  role: string | string[];
   bio: string;
   fullBio?: string;
   image: string;
@@ -83,21 +84,25 @@ const Team = () => {
       const data = await res.json();
       console.log('Team members response:', data);
       
-      // Helper function to sort team members: Full Stack and MERN Stack first
+      // Helper function to sort team members: CEO > Project Manager > Full Stack > Others
       const sortTeamMembers = (members: TeamMember[]): TeamMember[] => {
         return members.sort((a, b) => {
-          const roleA = a.role?.toLowerCase() || '';
-          const roleB = b.role?.toLowerCase() || '';
+          // Handle role as string or array - get the first/highest priority role
+          const rolesA = Array.isArray(a.role) ? a.role.map(r => String(r).toLowerCase()) : [String(a.role || '').toLowerCase()];
+          const rolesB = Array.isArray(b.role) ? b.role.map(r => String(r).toLowerCase()) : [String(b.role || '').toLowerCase()];
           
-          // Priority order: Full Stack > MERN Stack > Others
-          const getPriority = (role: string) => {
-            if (role.includes('full stack')) return 1;
-            if (role.includes('mern stack')) return 2;
-            return 3;
+          // Priority order: CEO > Project Manager > Full Stack > Others
+          const getPriority = (roles: string[]) => {
+            for (const role of roles) {
+              if (role.includes('ceo')) return 1;
+              if (role.includes('project manager')) return 2;
+              if (role.includes('full stack')) return 3;
+            }
+            return 4;
           };
           
-          const priorityA = getPriority(roleA);
-          const priorityB = getPriority(roleB);
+          const priorityA = getPriority(rolesA);
+          const priorityB = getPriority(rolesB);
           
           if (priorityA !== priorityB) {
             return priorityA - priorityB;
@@ -153,9 +158,10 @@ const Team = () => {
   };
 
   const skills = [
+    { name: "CEO", icon: <UserCircle className="w-5 h-5" /> },
+    { name: "Project Manager", icon: <Briefcase className="w-5 h-5" /> },
     { name: "Frontend Development", icon: <Code2 className="w-5 h-5" /> },
     { name: "Backend Development", icon: <Database className="w-5 h-5" /> },
-    { name: "MERN Stack", icon: <Cpu className="w-5 h-5" /> },
     { name: "Cloud Architecture", icon: <Cloud className="w-5 h-5" /> },
     { name: "Mobile Development", icon: <Smartphone className="w-5 h-5" /> },
     { name: "Full Stack", icon: <Globe2 className="w-5 h-5" /> },
@@ -173,37 +179,46 @@ const Team = () => {
     const filterName = activeFilter.toLowerCase();
 
     return teamMembers.filter((member) => {
-      const role = String(member.role || '').toLowerCase();
+      // Handle role as string or array
+      const roles = Array.isArray(member.role) 
+        ? member.role.map(r => String(r).toLowerCase())
+        : [String(member.role || '').toLowerCase()];
+      const roleString = roles.join(' ');
       const expertise = (member.expertise || []).map((e) => String(e).toLowerCase());
+      
+      // CEO filter
+      if (filterName === 'ceo') {
+        return roles.some(r => r.includes('ceo'));
+      }
+      
+      // Project Manager filter
+      if (filterName === 'project manager') {
+        return roles.some(r => r.includes('project manager'));
+      }
       
       // Frontend Development filter
       if (filterName === 'frontend development') {
-        return role.includes('frontend') || expertise.includes('frontend development');
+        return roles.some(r => r.includes('frontend')) || expertise.includes('frontend development');
       }
       
       // Backend Development filter
       if (filterName === 'backend development') {
-        return role.includes('backend') || expertise.includes('backend development');
-      }
-      
-      // MERN Stack filter
-      if (filterName === 'mern stack') {
-        return role.includes('mern') || expertise.includes('mern stack') || expertise.includes('mern');
+        return roles.some(r => r.includes('backend')) || expertise.includes('backend development');
       }
       
       // Cloud Architecture filter
       if (filterName === 'cloud architecture') {
-        return role.includes('cloud') || expertise.includes('cloud architecture');
+        return roles.some(r => r.includes('cloud')) || expertise.includes('cloud architecture');
       }
       
       // Mobile Development filter
       if (filterName === 'mobile development') {
-        return role.includes('mobile') || expertise.includes('mobile development');
+        return roles.some(r => r.includes('mobile')) || expertise.includes('mobile development');
       }
       
       // Full Stack filter
       if (filterName === 'full stack') {
-        return role.includes('full stack') || expertise.includes('full stack');
+        return roles.some(r => r.includes('full stack')) || expertise.includes('full stack');
       }
 
       return false;
@@ -256,15 +271,15 @@ const Team = () => {
       </section>
 
       {/* Filter Section */}
-      <section className="py-12 bg-slate-50 border-b border-slate-200">
+      <section className="py-12 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={() => setActiveFilter("all")}
               className={`px-6 py-2 rounded-lg font-semibold transition-all ${
                 activeFilter === "all"
                   ? "bg-slate-900 text-white"
-                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
               All Team
@@ -276,7 +291,7 @@ const Team = () => {
                 className={`px-6 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
                   activeFilter === skill.name
                     ? "bg-slate-900 text-white"
-                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 }`}
               >
                 {skill.icon}
@@ -354,7 +369,9 @@ const Team = () => {
                           {member.name}
                         </h3>
                         <p className="text-slate-600 text-sm font-medium">
-                          {member.role}
+                          {Array.isArray(member.role) 
+                            ? member.role.join(', ') 
+                            : member.role}
                         </p>
                       </div>
                     </div>

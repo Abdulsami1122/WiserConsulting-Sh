@@ -48,6 +48,7 @@ class TeamController {
     };
     
     // Parse array fields
+    parsed.role = parseArrayField('role');
     parsed.skills = parseArrayField('skills');
     parsed.expertise = parseArrayField('expertise');
     parsed.achievements = parseArrayField('achievements');
@@ -62,7 +63,7 @@ class TeamController {
     
     // Remove indexed keys from parsed object to avoid confusion
     Object.keys(parsed).forEach(key => {
-      if (key.match(/^(skills|expertise|achievements)\[\d+\]$/)) {
+      if (key.match(/^(role|skills|expertise|achievements)\[\d+\]$/)) {
         delete parsed[key];
       }
     });
@@ -81,26 +82,37 @@ class TeamController {
     const teamMembers = await Team.find(filter)
       .sort({ order: 1, createdAt: -1 });
     
-    // Sort by role priority: Full Stack and MERN Stack first
+    // Sort by role priority: CEO > Project Manager > Full Stack > Others
     const sortedMembers = teamMembers.sort((a, b) => {
-      const roleA = (a.role || '').toLowerCase();
-      const roleB = (b.role || '').toLowerCase();
+      // Handle role as string or array - get the first/highest priority role
+      const rolesA = Array.isArray(a.role) 
+        ? a.role.map(r => String(r).toLowerCase()) 
+        : [String(a.role || '').toLowerCase()];
+      const rolesB = Array.isArray(b.role) 
+        ? b.role.map(r => String(r).toLowerCase()) 
+        : [String(b.role || '').toLowerCase()];
       
-      const getPriority = (role) => {
-        if (role.includes('full stack')) return 1;
-        if (role.includes('mern stack')) return 2;
-        return 3;
+      const getPriority = (roles) => {
+        for (const role of roles) {
+          if (role.includes('ceo')) return 1;
+          if (role.includes('project manager')) return 2;
+          if (role.includes('full stack')) return 3;
+        }
+        return 4;
       };
       
-      const priorityA = getPriority(roleA);
-      const priorityB = getPriority(roleB);
+      const priorityA = getPriority(rolesA);
+      const priorityB = getPriority(rolesB);
       
       if (priorityA !== priorityB) {
         return priorityA - priorityB;
       }
       
-      // If same priority, maintain existing order
-      return 0;
+      // If same priority, sort by order field, then by name
+      if (a.order !== b.order) {
+        return a.order - b.order;
+      }
+      return a.name.localeCompare(b.name);
     });
     
     return apiResponse.success(res, sortedMembers, 'Team members retrieved successfully');

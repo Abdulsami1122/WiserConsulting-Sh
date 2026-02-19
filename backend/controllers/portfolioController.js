@@ -4,6 +4,41 @@ const apiResponse = require('../utils/apiResponse');
 const logger = require('../utils/logger');
 
 class PortfolioController {
+  // Helper function to parse FormData arrays
+  parseFormDataArrays(body) {
+    const parsed = { ...body };
+    
+    // Parse technologies array if it exists
+    if (body.technologies) {
+      if (typeof body.technologies === 'string') {
+        try {
+          parsed.technologies = JSON.parse(body.technologies);
+        } catch (e) {
+          // If not JSON, treat as single value array
+          parsed.technologies = [body.technologies];
+        }
+      } else if (Array.isArray(body.technologies)) {
+        parsed.technologies = body.technologies;
+      } else if (typeof body.technologies === 'object') {
+        // Handle FormData array format: technologies[0], technologies[1], etc.
+        parsed.technologies = Object.keys(body.technologies)
+          .sort()
+          .map(key => body.technologies[key])
+          .filter(val => val);
+      }
+    }
+    
+    // Parse order and isActive as numbers/booleans
+    if (body.order !== undefined) {
+      parsed.order = parseInt(body.order) || 0;
+    }
+    if (body.isActive !== undefined) {
+      parsed.isActive = body.isActive === 'true' || body.isActive === true;
+    }
+    
+    return parsed;
+  }
+
   // Get all portfolio items
   getAllPortfolios = asyncHandler(async (req, res) => {
     const { category, isActive, isDeleted } = req.query;
@@ -33,7 +68,18 @@ class PortfolioController {
 
   // Create portfolio item
   createPortfolio = asyncHandler(async (req, res) => {
-    const portfolio = await Portfolio.create(req.body);
+    // Parse FormData arrays and other fields
+    const portfolioData = this.parseFormDataArrays(req.body);
+    
+    // If an image file was uploaded, use the Cloudinary URL
+    if (req.file && req.file.path) {
+      portfolioData.image = req.file.path; // Cloudinary URL
+    } else if (!portfolioData.image) {
+      // Default to emoji if no image provided
+      portfolioData.image = '🛒';
+    }
+    
+    const portfolio = await Portfolio.create(portfolioData);
     logger.info(`Portfolio created: ${portfolio._id}`);
     return apiResponse.success(res, portfolio, 'Portfolio created successfully', 201);
   });
@@ -41,9 +87,22 @@ class PortfolioController {
   // Update portfolio item
   updatePortfolio = asyncHandler(async (req, res) => {
     const { id } = req.params;
+    // Parse FormData arrays and other fields
+    const updateData = this.parseFormDataArrays(req.body);
+    
+    // If an image file was uploaded, use the Cloudinary URL
+    if (req.file && req.file.path) {
+      updateData.image = req.file.path; // Cloudinary URL
+    }
+    // If no new image uploaded and image field is empty string, keep existing image
+    // (don't update image field if it's not provided)
+    if (updateData.image === '') {
+      delete updateData.image;
+    }
+    
     const portfolio = await Portfolio.findByIdAndUpdate(
       id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
     

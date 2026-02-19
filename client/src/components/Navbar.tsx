@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { logout } from "@/redux/slices/auth/authSlice";
-import { Menu, X, ChevronDown, Search, X as XIcon, ArrowRight, ExternalLink } from "lucide-react";
+import { Menu, X, ChevronDown, Search, X as XIcon, ArrowRight, ExternalLink, LogIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
@@ -149,6 +149,16 @@ const Navbar = () => {
             >
               <Search className="w-5 h-5" />
             </button>
+            {/* Login Button - Show when user is not logged in */}
+            {isMounted && !user && (
+              <Link
+                href="/login"
+                className="p-2 text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                aria-label="Login"
+              >
+                <LogIn className="w-5 h-5" />
+              </Link>
+            )}
             {isMounted && user && (
               <>
                 {/* Admin Button - Only show for admin users */}
@@ -225,6 +235,17 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
+              {/* Mobile Login Button - Show when user is not logged in */}
+              {isMounted && !user && (
+                <Link
+                  href="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-4 py-3 text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                >
+                  <LogIn className="w-5 h-5" />
+                  Login
+                </Link>
+              )}
               
               {isMounted && user && (
                 <div className="pt-4 border-t border-slate-200 space-y-3">

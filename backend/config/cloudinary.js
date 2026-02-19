@@ -95,6 +95,30 @@ const teamImageStorage = new CloudinaryStorage({
   },
 });
 
+// Configure Cloudinary storage for portfolio project images
+const portfolioImageStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'portfolio-projects',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { 
+        width: 1200, 
+        height: 800, 
+        crop: 'limit',
+        quality: 'auto',
+        fetch_format: 'auto'
+      }
+    ],
+    // Generate unique filenames
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      return `portfolio-project-${uniqueSuffix}`;
+    },
+    resource_type: 'image',
+  },
+});
+
 // File filter function
 const fileFilter = (req, file, cb) => {
   const allowedTypes = [
@@ -151,6 +175,15 @@ const uploadToLocal = multer({
 // Multer instance for team member image uploads (single image)
 const uploadTeamImage = multer({
   storage: teamImageStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit for images
+  },
+  fileFilter: imageFileFilter,
+});
+
+// Multer instance for portfolio project image uploads (single image)
+const uploadPortfolioImage = multer({
+  storage: portfolioImageStorage,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit for images
   },
@@ -281,6 +314,7 @@ module.exports = {
   uploadToCloudinary,
   uploadToLocal,
   uploadTeamImage,
+  uploadPortfolioImage,
   uploadFields,
   uploadFieldsLocal,
   uploadLocalToCloudinary,

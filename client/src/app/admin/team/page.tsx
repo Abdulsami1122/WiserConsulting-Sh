@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, ChevronDown, X } from 'lucide-react';
 
 interface TeamMember {
   _id: string;
   name: string;
-  role: string;
+  role: string | string[];
   bio: string;
   fullBio?: string;
   image: string;
@@ -28,7 +28,7 @@ const AdminTeam = () => {
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [formData, setFormData] = useState({
     name: '',
-    role: '',
+    role: [] as string[],
     bio: '',
     fullBio: '',
     image: '👨‍💼',
@@ -47,10 +47,59 @@ const AdminTeam = () => {
   const [achievementInput, setAchievementInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+
+  const roleOptions = [
+    { 
+      value: 'CEO', 
+      description: 'Chief Executive Officer - Strategic leadership and overall company direction' 
+    },
+    { 
+      value: 'Project Manager', 
+      description: 'Oversees project planning, execution, and team coordination' 
+    },
+    { 
+      value: 'Full Stack Developer', 
+      description: 'Expert in both frontend and backend development technologies' 
+    },
+    { 
+      value: 'Frontend Developer', 
+      description: 'Specializes in user interface and user experience development' 
+    },
+    { 
+      value: 'Backend Developer', 
+      description: 'Focuses on server-side logic, databases, and API development' 
+    },
+    { 
+      value: 'Cloud Architecture', 
+      description: 'Designs and manages cloud infrastructure and solutions' 
+    },
+    { 
+      value: 'Mobile App Developer', 
+      description: 'Develops applications for iOS and Android platforms' 
+    }
+  ];
 
   useEffect(() => {
     fetchMembers();
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (roleDropdownOpen && !target.closest('.role-dropdown-container')) {
+        setRoleDropdownOpen(false);
+      }
+    };
+
+    if (roleDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [roleDropdownOpen]);
 
   const fetchMembers = async () => {
     try {
@@ -70,20 +119,28 @@ const AdminTeam = () => {
       
       const data = await res.json();
       if (data.success) {
-        // Sort members: Full Stack and MERN Stack first, then others
+        // Sort members: CEO > Project Manager > Full Stack > Others
         const sortedMembers = (data.data || []).sort((a: TeamMember, b: TeamMember) => {
-          const roleA = a.role?.toLowerCase() || '';
-          const roleB = b.role?.toLowerCase() || '';
+          // Handle role as string or array - get the first/highest priority role
+          const rolesA = Array.isArray(a.role) 
+            ? a.role.map(r => String(r).toLowerCase()) 
+            : [String(a.role || '').toLowerCase()];
+          const rolesB = Array.isArray(b.role) 
+            ? b.role.map(r => String(r).toLowerCase()) 
+            : [String(b.role || '').toLowerCase()];
           
-          // Priority order: Full Stack > MERN Stack > Others
-          const getPriority = (role: string) => {
-            if (role.includes('full stack')) return 1;
-            if (role.includes('mern stack')) return 2;
-            return 3;
+          // Priority order: CEO > Project Manager > Full Stack > Others
+          const getPriority = (roles: string[]) => {
+            for (const role of roles) {
+              if (role.includes('ceo')) return 1;
+              if (role.includes('project manager')) return 2;
+              if (role.includes('full stack')) return 3;
+            }
+            return 4;
           };
           
-          const priorityA = getPriority(roleA);
-          const priorityB = getPriority(roleB);
+          const priorityA = getPriority(rolesA);
+          const priorityB = getPriority(rolesB);
           
           if (priorityA !== priorityB) {
             return priorityA - priorityB;
@@ -116,10 +173,15 @@ const AdminTeam = () => {
         : `${API_URL}/admin/team`;
       const method = editingMember ? 'PUT' : 'POST';
 
+      // Validate roles
+      if (formData.role.length === 0) {
+        alert('Please select at least one role');
+        return;
+      }
+
       // Create FormData for file upload
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name);
-      formDataToSend.append('role', formData.role);
       formDataToSend.append('bio', formData.bio);
       formDataToSend.append('fullBio', formData.fullBio);
       formDataToSend.append('email', formData.email || '');
@@ -128,6 +190,11 @@ const AdminTeam = () => {
       formDataToSend.append('twitter', formData.twitter || '');
       formDataToSend.append('order', formData.order.toString());
       formDataToSend.append('isActive', formData.isActive.toString());
+      
+      // Append role array
+      formData.role.forEach((role, index) => {
+        formDataToSend.append(`role[${index}]`, role);
+      });
       
       // Append arrays
       formData.skills.forEach((skill, index) => {
@@ -208,9 +275,11 @@ const AdminTeam = () => {
 
   const handleEdit = (member: TeamMember) => {
     setEditingMember(member);
+    // Convert role to array if it's a string (for backward compatibility)
+    const roles = Array.isArray(member.role) ? member.role : (member.role ? [member.role] : []);
     setFormData({
       name: member.name,
-      role: member.role,
+      role: roles,
       bio: member.bio,
       fullBio: member.fullBio || '',
       image: member.image,
@@ -237,7 +306,7 @@ const AdminTeam = () => {
   const resetForm = () => {
     setFormData({
       name: '',
-      role: '',
+      role: [],
       bio: '',
       fullBio: '',
       image: '👨‍💼',
@@ -257,6 +326,7 @@ const AdminTeam = () => {
     setAchievementInput('');
     setImageFile(null);
     setImagePreview(null);
+    setRoleDropdownOpen(false);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -341,7 +411,11 @@ const AdminTeam = () => {
               )}
               <div className="flex-1">
                 <h3 className="font-bold text-lg">{member.name}</h3>
-                <p className="text-sm text-gray-600">{member.role}</p>
+                <div className="text-sm text-gray-600">
+                  {Array.isArray(member.role) 
+                    ? member.role.join(', ') 
+                    : member.role}
+                </div>
               </div>
             </div>
             <p className="text-sm text-gray-700 mb-4 line-clamp-2">{member.bio}</p>
@@ -391,19 +465,88 @@ const AdminTeam = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    required
-                  >
-                    <option value="">Select a role</option>
-                    <option value="Full Stack Developer">Full Stack Developer</option>
-                    <option value="MERN Stack Developer">MERN Stack Developer</option>
-                    <option value="Frontend Developer">Frontend Developer</option>
-                    <option value="Mobile App Developer">Mobile App Developer</option>
-                  </select>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Roles {formData.role.length > 0 && `(${formData.role.length} selected)`}
+                  </label>
+                  <div className="relative role-dropdown-container">
+                    <button
+                      type="button"
+                      onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-left flex items-center justify-between hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <span className="text-sm text-gray-700">
+                        {formData.role.length === 0 
+                          ? 'Select roles...' 
+                          : formData.role.join(', ')}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${roleDropdownOpen ? 'transform rotate-180' : ''}`} />
+                    </button>
+                    {roleDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                        {roleOptions.map((role) => (
+                          <div
+                            key={role.value}
+                            className={`p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 ${
+                              formData.role.includes(role.value) ? 'bg-green-50' : ''
+                            }`}
+                            onClick={() => {
+                              if (formData.role.includes(role.value)) {
+                                setFormData({ ...formData, role: formData.role.filter(r => r !== role.value) });
+                              } else {
+                                setFormData({ ...formData, role: [...formData.role, role.value] });
+                              }
+                            }}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={formData.role.includes(role.value)}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      if (e.target.checked) {
+                                        setFormData({ ...formData, role: [...formData.role, role.value] });
+                                      } else {
+                                        setFormData({ ...formData, role: formData.role.filter(r => r !== role.value) });
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer"
+                                  />
+                                  <span className="text-sm font-medium text-gray-900">{role.value}</span>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1 ml-6">{role.description}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {formData.role.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {formData.role.map((role) => (
+                        <span
+                          key={role}
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded"
+                        >
+                          {role}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData({ ...formData, role: formData.role.filter(r => r !== role) });
+                            }}
+                            className="text-green-600 hover:text-green-800"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {formData.role.length === 0 && (
+                    <p className="text-xs text-red-600 mt-1">Please select at least one role</p>
+                  )}
                 </div>
               </div>
               <div>

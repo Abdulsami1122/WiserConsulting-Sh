@@ -31,6 +31,8 @@ const AdminPortfolio = () => {
     isActive: true,
   });
   const [techInput, setTechInput] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPortfolios();
@@ -38,10 +40,20 @@ const AdminPortfolio = () => {
 
   const fetchPortfolios = async () => {
     try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/portfolios', {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`${API_URL}/portfolios`, {
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        credentials: 'include',
       });
+      
+      if (!res.ok) {
+        throw new Error('Failed to fetch portfolios');
+      }
+      
       const data = await res.json();
       if (data.success) {
         setPortfolios(data.data);
@@ -56,29 +68,61 @@ const AdminPortfolio = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const token = localStorage.getItem('token');
       const url = editingPortfolio
-        ? `/api/admin/portfolios/${editingPortfolio._id}`
-        : '/api/admin/portfolios';
+        ? `${API_URL}/admin/portfolios/${editingPortfolio._id}`
+        : `${API_URL}/admin/portfolios`;
       const method = editingPortfolio ? 'PUT' : 'POST';
+
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('category', formData.category);
+      formDataToSend.append('link', formData.link || '');
+      formDataToSend.append('order', formData.order.toString());
+      formDataToSend.append('isActive', formData.isActive.toString());
+      
+      // Append technologies array
+      formData.technologies.forEach((tech, index) => {
+        formDataToSend.append(`technologies[${index}]`, tech);
+      });
+      
+      // Append image file if selected, otherwise append existing image URL or emoji
+      if (imageFile) {
+        formDataToSend.append('image', imageFile);
+      } else if (formData.image && !formData.image.startsWith('http')) {
+        // If it's an emoji or text, send it as a regular field
+        formDataToSend.append('image', formData.image);
+      }
 
       const res = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
+          // Don't set Content-Type header, let browser set it with boundary for FormData
         },
-        body: JSON.stringify(formData),
+        credentials: 'include',
+        body: formDataToSend,
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to save portfolio');
+      }
 
       const data = await res.json();
       if (data.success) {
         fetchPortfolios();
         setShowModal(false);
         resetForm();
+      } else {
+        throw new Error(data.message || 'Failed to save portfolio');
       }
     } catch (error) {
       console.error('Error saving portfolio:', error);
+      alert(error instanceof Error ? error.message : 'Failed to save portfolio. Please try again.');
     }
   };
 
@@ -86,18 +130,30 @@ const AdminPortfolio = () => {
     if (!confirm('Are you sure you want to delete this portfolio item?')) return;
 
     try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/admin/portfolios/${id}`, {
+      const res = await fetch(`${API_URL}/admin/portfolios/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        credentials: 'include',
       });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete portfolio');
+      }
 
       const data = await res.json();
       if (data.success) {
         fetchPortfolios();
+      } else {
+        throw new Error(data.message || 'Failed to delete portfolio');
       }
     } catch (error) {
       console.error('Error deleting portfolio:', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete portfolio. Please try again.');
     }
   };
 
@@ -113,6 +169,13 @@ const AdminPortfolio = () => {
       order: portfolio.order,
       isActive: portfolio.isActive,
     });
+    // Set image preview if it's a URL, otherwise clear it
+    if (portfolio.image && (portfolio.image.startsWith('http') || portfolio.image.startsWith('/'))) {
+      setImagePreview(portfolio.image);
+    } else {
+      setImagePreview(null);
+    }
+    setImageFile(null);
     setShowModal(true);
   };
 
@@ -129,6 +192,31 @@ const AdminPortfolio = () => {
     });
     setEditingPortfolio(null);
     setTechInput('');
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+      setImageFile(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const addTechnology = () => {
@@ -148,10 +236,6 @@ const AdminPortfolio = () => {
     });
   };
 
-  const handleAddProjectPic = () => {
-    // Logic to handle adding project picture
-    // This could involve opening a modal or redirecting to a file upload page
-  };
 
   if (loading) {
     return (
@@ -192,7 +276,17 @@ const AdminPortfolio = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {portfolios.map((portfolio) => (
               <tr key={portfolio._id}>
-                <td className="px-6 py-4 whitespace-nowrap text-2xl">{portfolio.image}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {portfolio.image && (portfolio.image.startsWith('http') || portfolio.image.startsWith('/')) ? (
+                    <img
+                      src={portfolio.image}
+                      alt={portfolio.title}
+                      className="w-16 h-16 object-cover rounded-lg border-2 border-gray-200"
+                    />
+                  ) : (
+                    <div className="text-2xl">{portfolio.image || '🛒'}</div>
+                  )}
+                </td>
                 <td className="px-6 py-4">
                   <div className="text-sm font-medium text-gray-900">{portfolio.title}</div>
                   <div className="text-sm text-gray-500 line-clamp-1">{portfolio.description}</div>
@@ -294,14 +388,48 @@ const AdminPortfolio = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Image (Emoji)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Project Image</label>
                   <input
-                    type="text"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    placeholder="🛒"
                   />
+                  {imagePreview && (
+                    <div className="mt-2">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                      />
+                    </div>
+                  )}
+                  {!imagePreview && formData.image && !formData.image.startsWith('http') && (
+                    <div className="mt-2 text-4xl">{formData.image}</div>
+                  )}
+                  {!imagePreview && formData.image && formData.image.startsWith('http') && (
+                    <div className="mt-2">
+                      <img
+                        src={formData.image}
+                        alt="Current"
+                        className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                      />
+                    </div>
+                  )}
+                  <div className="mt-2">
+                    <label className="block text-xs text-gray-500 mb-1">Or use emoji:</label>
+                    <input
+                      type="text"
+                      value={formData.image && !formData.image.startsWith('http') ? formData.image : ''}
+                      onChange={(e) => {
+                        setFormData({ ...formData, image: e.target.value });
+                        setImageFile(null);
+                        setImagePreview(null);
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="🛒"
+                    />
+                  </div>
                 </div>
               </div>
               <div>
