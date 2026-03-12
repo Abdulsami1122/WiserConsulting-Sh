@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { logout } from "@/redux/slices/auth/authSlice";
-import { Menu, X, ChevronDown, Search, X as XIcon, ArrowRight, ExternalLink, LogIn } from "lucide-react";
+import { Menu, X, ChevronDown, Search, X as XIcon, ArrowRight, ExternalLink, LogIn, User, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
@@ -16,6 +16,7 @@ const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMounted, setIsMounted] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
@@ -160,17 +161,13 @@ const Navbar = () => {
               </Link>
             )}
             {isMounted && user && (
-              <>
-                {/* Admin Button - Only show for admin users */}
-                {isAdmin(user.role) && (
-                  <Link
-                    href="/admin"
-                    className="px-4 py-2 text-sm font-semibold rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm hover:shadow-md"
-                  >
-                    Admin
-                  </Link>
-                )}
-                <div className="flex items-center space-x-3 px-4 py-2 bg-slate-50 rounded-lg">
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  className="flex items-center space-x-3 px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+                  aria-label="User menu"
+                  aria-expanded={isUserDropdownOpen}
+                >
                   <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs font-semibold">
                       {user.name?.charAt(0).toUpperCase()}
@@ -179,14 +176,57 @@ const Navbar = () => {
                   <span className="text-sm font-medium text-slate-700">
                     {user.name}
                   </span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="px-5 py-2.5 text-sm font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm hover:shadow-md"
-                >
-                  Logout
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
-              </>
+
+                {/* Dropdown Menu */}
+                {isUserDropdownOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                      aria-hidden="true"
+                    />
+                    <div className="absolute right-0 mt-2 w-56 z-20 bg-white rounded-lg border border-slate-200 shadow-lg py-1">
+                      <div className="px-4 py-3 border-b border-slate-200">
+                        <p className="text-sm font-medium text-slate-900">{user.name || 'User'}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{user.email || 'user@example.com'}</p>
+                      </div>
+                      <div className="py-1">
+                        {isAdmin(user.role) && (
+                          <Link
+                            href="/admin"
+                            onClick={() => setIsUserDropdownOpen(false)}
+                            className="w-full flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+                          >
+                            <span className="mr-3 w-2 h-2 rounded-full bg-green-600"></span>
+                            <span>Admin</span>
+                          </Link>
+                        )}
+                        <button
+                          onClick={() => setIsUserDropdownOpen(false)}
+                          className="w-full flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                        >
+                          <User className="mr-3 h-4 w-4" />
+                          <span>Profile</span>
+                        </button>
+                      </div>
+                      <div className="border-t border-slate-200 py-1">
+                        <button
+                          onClick={() => {
+                            setIsUserDropdownOpen(false);
+                            handleLogout();
+                          }}
+                          className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="mr-3 h-4 w-4" />
+                          <span>Logout</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </div>
 
@@ -318,6 +358,7 @@ const Navbar = () => {
                   <button
                     type="submit"
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 text-slate-600 hover:text-slate-900 transition-colors"
+                    aria-label="Search"
                   >
                     <Search className="w-5 h-5" />
                   </button>
@@ -325,6 +366,7 @@ const Navbar = () => {
                     type="button"
                     onClick={() => setIsSearchOpen(false)}
                     className="absolute right-16 top-1/2 transform -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                    aria-label="Close search"
                   >
                     <XIcon className="w-5 h-5" />
                   </button>
