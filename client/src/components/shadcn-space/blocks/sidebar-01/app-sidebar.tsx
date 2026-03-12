@@ -7,7 +7,7 @@ import { NavItem, NavMain } from "@/components/shadcn-space/blocks/sidebar-01/na
 import { PieChart, Briefcase, Users, Wrench, FileText, Mail, User } from "lucide-react";
 
 export const navData: NavItem[] = [
-  // Main Section
+  // Main Sectiion
   { label: "Main", isSection: true },
   { title: "Dashboard", icon: PieChart, href: "/admin" },
   { title: "Portfolio", icon: Briefcase, href: "/admin/portfolio" },
