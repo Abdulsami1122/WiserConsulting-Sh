@@ -245,7 +245,6 @@ const Team = () => {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed"
           style={{
             backgroundImage: 'url(/back.png)',
-            backgroundAttachment: 'fixed',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -260,10 +259,10 @@ const Team = () => {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 px-4">
               Our Team
             </h1>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl mx-auto px-4">
               Meet the talented individuals who bring innovation and expertise to every project
             </p>
           </motion.div>
@@ -303,40 +302,40 @@ const Team = () => {
       </section>
 
       {/* Team Grid */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[300px] flex items-center justify-center">
           {loading ? (
-            <div className="text-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900 mx-auto mb-4"></div>
-              <p className="text-slate-600 text-lg">Loading team members...</p>
+            <div className="text-center py-12 sm:py-20">
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-slate-900 mx-auto mb-4"></div>
+              <p className="text-slate-600 text-base sm:text-lg">Loading team members...</p>
             </div>
           ) : error ? (
-            <div className="text-center py-20">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-                <p className="text-red-800 text-lg mb-4">{error}</p>
+            <div className="text-center py-12 sm:py-20">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6 max-w-md mx-auto">
+                <p className="text-red-800 text-sm sm:text-lg mb-4">{error}</p>
                 <button
                   onClick={() => {
                     setError(null);
                     fetchTeamMembers();
                   }}
-                  className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                  className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm sm:text-base"
                 >
                   Retry
                 </button>
               </div>
             </div>
           ) : filteredMembers.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-slate-600 text-lg mb-4">No team members found.</p>
+            <div className="text-center py-12 sm:py-20">
+              <p className="text-slate-600 text-base sm:text-lg mb-4">No team members found.</p>
               <button
                 onClick={retryFetch}
-                className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm sm:text-base"
               >
                 Retry
               </button>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {filteredMembers.map((member, index) => (
               <motion.div
                 key={member._id}

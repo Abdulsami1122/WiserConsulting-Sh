@@ -70,7 +70,7 @@ const Register: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8 sm:py-12">
       <div className="w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -83,10 +83,10 @@ const Register: React.FC = () => {
             <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4">
               <UserPlus className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
               Create Your Account
             </h2>
-            <p className="text-slate-300 text-sm">
+            <p className="text-slate-300 text-xs sm:text-sm">
               Join WISER CONSULTING and start your software journey today
             </p>
           </div>

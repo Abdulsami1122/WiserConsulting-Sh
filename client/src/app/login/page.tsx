@@ -4,7 +4,6 @@ import React, { useState, FormEvent, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { login } from "@/redux/slices/auth/authSlice";
-import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, LogIn } from "lucide-react";
 import Link from "next/link";
@@ -66,7 +65,7 @@ const Login: React.FC = () => {
   }, [user, loading, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8 sm:py-12">
       <div className="w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -79,10 +78,10 @@ const Login: React.FC = () => {
             <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4">
               <LogIn className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
               Welcome Back
             </h2>
-            <p className="text-slate-300 text-sm">
+            <p className="text-slate-300 text-xs sm:text-sm">
               Sign in to access your account
             </p>
           </div>
@@ -188,23 +187,6 @@ const Login: React.FC = () => {
               )}
             </motion.button>
           </form>
-
-          {/* Divider */}
-          <div className="px-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-500">Or continue with</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Google Login */}
-          <div className="p-8 pt-6">
-            <GoogleLoginButton />
-          </div>
 
           {/* Footer */}
           <div className="px-8 pb-8 text-center">

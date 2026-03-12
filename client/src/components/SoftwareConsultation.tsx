@@ -125,13 +125,13 @@ const SoftwareConsultation: React.FC = () => {
               <Clock className="w-4 h-4 text-white" />
               <span className="text-sm text-white font-medium">Trusted Software House Since 2020</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white leading-tight tracking-tight px-4">
               Transform Your Business
               <span className="block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300">
                 With Software Solutions
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-slate-200 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-200 max-w-3xl mx-auto leading-relaxed px-4">
               Expert software development services for businesses of all sizes. 
               Get personalized software solutions tailored to your needs.
             </p>
@@ -139,7 +139,7 @@ const SoftwareConsultation: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-transparent text-white font-semibold rounded-lg text-lg border-2 border-white hover:bg-white/10 transition-all"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-transparent text-white font-semibold rounded-lg text-base sm:text-lg border-2 border-white hover:bg-white/10 transition-all"
               >
                 Learn More
               </motion.button>
@@ -182,10 +182,10 @@ const SoftwareConsultation: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4 px-4">
               Why Choose Our Software Services
             </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
               We combine expertise, personalized service, and proven success rates to make your software development journey smooth and successful.
             </p>
           </motion.div>
@@ -220,10 +220,10 @@ const SoftwareConsultation: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4 px-4">
               Our Simple Process
             </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
               Four simple steps to get your software solution delivered
             </p>
           </motion.div>
@@ -267,10 +267,10 @@ const SoftwareConsultation: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4 px-4">
               Our Technology Stack
             </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto px-4">
               We use cutting-edge technologies to build modern, scalable software solutions
             </p>
           </motion.div>

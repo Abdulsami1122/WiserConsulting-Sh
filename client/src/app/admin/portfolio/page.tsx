@@ -247,17 +247,18 @@ const AdminPortfolio = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Portfolio Management</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Portfolio Management</h1>
         <button
           onClick={() => {
             resetForm();
             setShowModal(true);
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm sm:text-base w-full sm:w-auto justify-center"
         >
-          <Plus className="w-5 h-5" />
-          Add Portfolio
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Add Portfolio</span>
+          <span className="sm:hidden">Add</span>
         </button>
       </div>
 
@@ -275,28 +276,33 @@ const AdminPortfolio = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {portfolios.map((portfolio) => (
-              <tr key={portfolio._id}>
-                <td className="px-6 py-4 whitespace-nowrap">
+              <tr key={portfolio._id} className="hover:bg-gray-50">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                   {portfolio.image && (portfolio.image.startsWith('http') || portfolio.image.startsWith('/')) ? (
                     <img
                       src={portfolio.image}
                       alt={portfolio.title}
-                      className="w-16 h-16 object-cover rounded-lg border-2 border-gray-200"
+                      className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg border-2 border-gray-200"
                     />
                   ) : (
-                    <div className="text-2xl">{portfolio.image || '🛒'}</div>
+                    <div className="text-xl sm:text-2xl">{portfolio.image || '🛒'}</div>
                   )}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-3 sm:px-6 py-4">
                   <div className="text-sm font-medium text-gray-900">{portfolio.title}</div>
-                  <div className="text-sm text-gray-500 line-clamp-1">{portfolio.description}</div>
+                  <div className="text-xs sm:text-sm text-gray-500 line-clamp-1">{portfolio.description}</div>
+                  <div className="sm:hidden mt-1">
+                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      {portfolio.category}
+                    </span>
+                  </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                   <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                     {portfolio.category}
                   </span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-3 sm:px-6 py-4 hidden md:table-cell">
                   <div className="flex flex-wrap gap-1">
                     {portfolio.technologies.slice(0, 3).map((tech, idx) => (
                       <span key={idx} className="px-2 py-1 text-xs bg-gray-100 rounded">
@@ -310,30 +316,32 @@ const AdminPortfolio = () => {
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                   {portfolio.isActive ? (
                     <span className="flex items-center gap-1 text-green-600">
                       <Eye className="w-4 h-4" />
-                      Active
+                      <span className="hidden md:inline">Active</span>
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 text-gray-400">
                       <EyeOff className="w-4 h-4" />
-                      Inactive
+                      <span className="hidden md:inline">Inactive</span>
                     </span>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEdit(portfolio)}
-                      className="text-blue-600 hover:text-blue-900"
+                      className="text-blue-600 hover:text-blue-900 p-1"
+                      aria-label="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(portfolio._id)}
-                      className="text-red-600 hover:text-red-900"
+                      className="text-red-600 hover:text-red-900 p-1"
+                      aria-label="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -347,9 +355,9 @@ const AdminPortfolio = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4">
               {editingPortfolio ? 'Edit Portfolio' : 'Add Portfolio'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -359,7 +367,7 @@ const AdminPortfolio = () => {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
                   required
                 />
               </div>
@@ -368,12 +376,12 @@ const AdminPortfolio = () => {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
                   rows={3}
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                   <select
