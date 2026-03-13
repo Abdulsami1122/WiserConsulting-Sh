@@ -1,6 +1,6 @@
 "use client";
 
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Logo from "@/assets/logo/logo";
 import { NavItem, NavMain } from "@/components/shadcn-space/blocks/sidebar-01/nav-main";
@@ -19,6 +19,14 @@ export const navData: NavItem[] = [
 ];
 
 export function AppSidebar() {
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleLogoClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
   return (
     <Sidebar className="px-0 h-full [&_[data-slot=sidebar-inner]]:h-full">
       <div className="flex flex-col gap-6">
@@ -26,7 +34,7 @@ export function AppSidebar() {
         <SidebarHeader className="px-2 sm:px-4">
           <SidebarMenu>
             <SidebarMenuItem>
-              <a href="/admin" className="w-full h-full" aria-label="Admin Dashboard">
+              <a href="/admin" className="w-full h-full" aria-label="Admin Dashboard" onClick={handleLogoClick}>
                 <Logo />
               </a>
             </SidebarMenuItem>

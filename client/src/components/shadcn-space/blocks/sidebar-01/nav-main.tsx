@@ -19,6 +19,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 export type NavItem = {
@@ -73,9 +74,19 @@ function NavMainItem({
   setActiveChild: (val: string | null) => void;
 }) {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
   const hasChildren = !!item.children?.length;
   const isParentActive = activeParent === item.title || pathname === item.href;
   const [isOpen, setIsOpen] = React.useState(isParentActive);
+
+  // Close sidebar on mobile when navigation item is clicked
+  const handleNavClick = () => {
+    setActiveParent(item.title!);
+    setActiveChild(null);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   // Sync open state when activeParent changes
   React.useEffect(() => {
@@ -155,10 +166,7 @@ function NavMainItem({
               id={`nav-main-button-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
               tooltip={item.title}
               isActive={isParentActive}
-              onClick={() => {
-                setActiveParent(item.title!);
-                setActiveChild(null);
-              }}
+              onClick={handleNavClick}
               className={cn(
                 "rounded-md text-sm font-medium px-3 py-2 h-9 transition-colors cursor-pointer",
                 isParentActive ? "bg-primary! text-primary-foreground!" : ""
@@ -194,8 +202,18 @@ function NavMainSubItem({
   setActiveChild: (val: string | null) => void;
   parentTitle?: string;
 }) {
+  const { isMobile, setOpenMobile } = useSidebar();
   const hasChildren = !!item.children?.length;
   const [isOpen, setIsOpen] = React.useState(false);
+
+  // Close sidebar on mobile when sub-navigation item is clicked
+  const handleSubNavClick = () => {
+    setActiveParent(parentTitle || "");
+    setActiveChild(item.title!);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   if (hasChildren && item.title) {
     return (
@@ -248,10 +266,7 @@ function NavMainSubItem({
             isChildActive ? "bg-muted! text-foreground!" : ""
           )}
           isActive={isChildActive}
-          onClick={() => {
-            setActiveParent(parentTitle || "");
-            setActiveChild(item.title!);
-          }}
+          onClick={handleSubNavClick}
           asChild
         >
           <Link href={item.href || "#"}>{item.title}</Link>
