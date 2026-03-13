@@ -449,8 +449,8 @@ const AdminTeam = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto mx-2">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4">
               {editingMember ? 'Edit Team Member' : 'Add Team Member'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -461,7 +461,7 @@ const AdminTeam = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
                     required
                   />
                 </div>
@@ -555,7 +555,7 @@ const AdminTeam = () => {
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
                   rows={2}
                   required
                 />
@@ -565,7 +565,7 @@ const AdminTeam = () => {
                 <textarea
                   value={formData.fullBio}
                   onChange={(e) => setFormData({ ...formData, fullBio: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
                   rows={3}
                 />
               </div>
@@ -576,7 +576,7 @@ const AdminTeam = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
                   />
                   {imagePreview && (
                     <div className="mt-2">
@@ -606,7 +606,7 @@ const AdminTeam = () => {
                     type="number"
                     value={formData.order}
                     onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
                   />
                 </div>
               </div>
@@ -658,7 +658,7 @@ const AdminTeam = () => {
                     value={skillInput}
                     onChange={(e) => setSkillInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('skills'))}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-base"
                     placeholder="Add skill"
                   />
                   <button type="button" onClick={() => addItem('skills')} className="px-4 py-2 bg-gray-200 rounded-lg">
@@ -682,7 +682,7 @@ const AdminTeam = () => {
                     value={expertiseInput}
                     onChange={(e) => setExpertiseInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('expertise'))}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-base"
                     placeholder="Add expertise"
                   />
                   <button type="button" onClick={() => addItem('expertise')} className="px-4 py-2 bg-gray-200 rounded-lg">
@@ -706,7 +706,7 @@ const AdminTeam = () => {
                     value={achievementInput}
                     onChange={(e) => setAchievementInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('achievements'))}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-base"
                     placeholder="Add achievement"
                   />
                   <button type="button" onClick={() => addItem('achievements')} className="px-4 py-2 bg-gray-200 rounded-lg">

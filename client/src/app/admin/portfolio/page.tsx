@@ -262,101 +262,172 @@ const AdminPortfolio = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Technologies</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {portfolios.map((portfolio) => (
-              <tr key={portfolio._id} className="hover:bg-gray-50">
-                <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                  {portfolio.image && (portfolio.image.startsWith('http') || portfolio.image.startsWith('/')) ? (
-                    <img
-                      src={portfolio.image}
-                      alt={portfolio.title}
-                      className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg border-2 border-gray-200"
-                    />
-                  ) : (
-                    <div className="text-xl sm:text-2xl">{portfolio.image || '🛒'}</div>
-                  )}
-                </td>
-                <td className="px-3 sm:px-6 py-4">
-                  <div className="text-sm font-medium text-gray-900">{portfolio.title}</div>
-                  <div className="text-xs sm:text-sm text-gray-500 line-clamp-1">{portfolio.description}</div>
-                  <div className="sm:hidden mt-1">
-                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                      {portfolio.category}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+      {/* Mobile Card View */}
+      <div className="block md:hidden space-y-4">
+        {portfolios.map((portfolio) => (
+          <div key={portfolio._id} className="bg-white rounded-lg shadow p-4 border border-gray-200">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                {portfolio.image && (portfolio.image.startsWith('http') || portfolio.image.startsWith('/')) ? (
+                  <img
+                    src={portfolio.image}
+                    alt={portfolio.title}
+                    className="w-16 h-16 object-cover rounded-lg border-2 border-gray-200"
+                  />
+                ) : (
+                  <div className="text-3xl w-16 h-16 flex items-center justify-center bg-gray-50 rounded-lg">{portfolio.image || '🛒'}</div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-semibold text-gray-900 truncate">{portfolio.title}</h3>
+                <p className="text-sm text-gray-500 line-clamp-2 mt-1">{portfolio.description}</p>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
                   <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                     {portfolio.category}
                   </span>
-                </td>
-                <td className="px-3 sm:px-6 py-4 hidden md:table-cell">
-                  <div className="flex flex-wrap gap-1">
+                  {portfolio.isActive ? (
+                    <span className="flex items-center gap-1 text-green-600 text-xs">
+                      <Eye className="w-3 h-3" />
+                      Active
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-gray-400 text-xs">
+                      <EyeOff className="w-3 h-3" />
+                      Inactive
+                    </span>
+                  )}
+                </div>
+                {portfolio.technologies.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
                     {portfolio.technologies.slice(0, 3).map((tech, idx) => (
-                      <span key={idx} className="px-2 py-1 text-xs bg-gray-100 rounded">
+                      <span key={idx} className="px-2 py-0.5 text-xs bg-gray-100 rounded text-gray-700">
                         {tech}
                       </span>
                     ))}
                     {portfolio.technologies.length > 3 && (
-                      <span className="px-2 py-1 text-xs bg-gray-100 rounded">
+                      <span className="px-2 py-0.5 text-xs bg-gray-100 rounded text-gray-700">
                         +{portfolio.technologies.length - 3}
                       </span>
                     )}
                   </div>
-                </td>
-                <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                  {portfolio.isActive ? (
-                    <span className="flex items-center gap-1 text-green-600">
-                      <Eye className="w-4 h-4" />
-                      <span className="hidden md:inline">Active</span>
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 text-gray-400">
-                      <EyeOff className="w-4 h-4" />
-                      <span className="hidden md:inline">Inactive</span>
-                    </span>
-                  )}
-                </td>
-                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleEdit(portfolio)}
-                      className="text-blue-600 hover:text-blue-900 p-1"
-                      aria-label="Edit"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(portfolio._id)}
-                      className="text-red-600 hover:text-red-900 p-1"
-                      aria-label="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
+                )}
+                <div className="flex items-center gap-3 mt-3">
+                  <button
+                    onClick={() => handleEdit(portfolio)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    aria-label="Edit"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(portfolio._id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
+                    aria-label="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Technologies</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {portfolios.map((portfolio) => (
+                <tr key={portfolio._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {portfolio.image && (portfolio.image.startsWith('http') || portfolio.image.startsWith('/')) ? (
+                      <img
+                        src={portfolio.image}
+                        alt={portfolio.title}
+                        className="w-16 h-16 object-cover rounded-lg border-2 border-gray-200"
+                      />
+                    ) : (
+                      <div className="text-2xl">{portfolio.image || '🛒'}</div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-medium text-gray-900">{portfolio.title}</div>
+                    <div className="text-sm text-gray-500 line-clamp-1">{portfolio.description}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      {portfolio.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-1">
+                      {portfolio.technologies.slice(0, 3).map((tech, idx) => (
+                        <span key={idx} className="px-2 py-1 text-xs bg-gray-100 rounded">
+                          {tech}
+                        </span>
+                      ))}
+                      {portfolio.technologies.length > 3 && (
+                        <span className="px-2 py-1 text-xs bg-gray-100 rounded">
+                          +{portfolio.technologies.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {portfolio.isActive ? (
+                      <span className="flex items-center gap-1 text-green-600">
+                        <Eye className="w-4 h-4" />
+                        <span>Active</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-gray-400">
+                        <EyeOff className="w-4 h-4" />
+                        <span>Inactive</span>
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEdit(portfolio)}
+                        className="text-blue-600 hover:text-blue-900 p-1"
+                        aria-label="Edit"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(portfolio._id)}
+                        className="text-red-600 hover:text-red-900 p-1"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto mx-2">
             <h2 className="text-xl sm:text-2xl font-bold mb-4">
               {editingPortfolio ? 'Edit Portfolio' : 'Add Portfolio'}
             </h2>

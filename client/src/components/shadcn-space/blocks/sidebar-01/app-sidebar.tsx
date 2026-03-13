@@ -23,10 +23,10 @@ export function AppSidebar() {
     <Sidebar className="px-0 h-full [&_[data-slot=sidebar-inner]]:h-full">
       <div className="flex flex-col gap-6">
         {/* ---------------- Header ---------------- */}
-        <SidebarHeader className="px-4">
+        <SidebarHeader className="px-2 sm:px-4">
           <SidebarMenu>
             <SidebarMenuItem>
-              <a href="/admin" className="w-full h-full">
+              <a href="/admin" className="w-full h-full" aria-label="Admin Dashboard">
                 <Logo />
               </a>
             </SidebarMenuItem>
@@ -36,7 +36,7 @@ export function AppSidebar() {
         {/* ---------------- Content ---------------- */}
         <SidebarContent className="overflow-hidden">
           <ScrollArea className="h-[calc(100vh-100px)]">
-            <div className="px-4">
+            <div className="px-2 sm:px-4">
               <NavMain items={navData} />
             </div>
           </ScrollArea>

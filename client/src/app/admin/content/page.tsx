@@ -101,18 +101,18 @@ const AdminContent = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Content Management</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Content Management</h1>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="mb-6">
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+        <div className="mb-4 sm:mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">Select Page</label>
           <select
             value={selectedPage}
             onChange={(e) => setSelectedPage(e.target.value)}
-            className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg"
+            className="w-full sm:w-64 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-base"
           >
             <option value="home">Home</option>
             <option value="about">About</option>
@@ -120,37 +120,37 @@ const AdminContent = () => {
           </select>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Hero Title</label>
-            <input
-              type="text"
-              value={formData.heroTitle || ''}
-              onChange={(e) => setFormData({ ...formData, heroTitle: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-              placeholder="Enter hero title"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Hero Subtitle</label>
-            <input
-              type="text"
-              value={formData.heroSubtitle || ''}
-              onChange={(e) => setFormData({ ...formData, heroSubtitle: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-              placeholder="Enter hero subtitle"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Hero Description</label>
-            <textarea
-              value={formData.heroDescription || ''}
-              onChange={(e) => setFormData({ ...formData, heroDescription: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-              rows={4}
-              placeholder="Enter hero description"
-            />
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hero Title</label>
+                <input
+                  type="text"
+                  value={formData.heroTitle || ''}
+                  onChange={(e) => setFormData({ ...formData, heroTitle: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
+                  placeholder="Enter hero title"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hero Subtitle</label>
+                <input
+                  type="text"
+                  value={formData.heroSubtitle || ''}
+                  onChange={(e) => setFormData({ ...formData, heroSubtitle: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
+                  placeholder="Enter hero subtitle"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hero Description</label>
+                <textarea
+                  value={formData.heroDescription || ''}
+                  onChange={(e) => setFormData({ ...formData, heroDescription: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base"
+                  rows={4}
+                  placeholder="Enter hero description"
+                />
+              </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Metadata (JSON format - optional)
@@ -173,9 +173,9 @@ const AdminContent = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="flex items-center gap-2 px-4 sm:px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm sm:text-base w-full sm:w-auto justify-center"
             >
-              <Save className="w-5 h-5" />
+              <Save className="w-4 h-4 sm:w-5 sm:h-5" />
               Save Content
             </button>
           </div>

@@ -241,7 +241,7 @@ const AdminContacts = () => {
         </div>
 
         {selectedContact && (
-          <div className="bg-white rounded-lg shadow p-4 sm:p-6 sticky top-20 lg:top-0 max-h-[calc(100vh-120px)] lg:max-h-none overflow-y-auto">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 lg:sticky lg:top-0 max-h-[calc(100vh-120px)] lg:max-h-none overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
               <h2 className="text-lg sm:text-xl font-bold">Contact Details</h2>
               <button

@@ -96,14 +96,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <AppSidebar />
       {/* ---------------- Main ---------------- */}
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-50 flex h-14 items-center border-b bg-background px-4">
+        <header className="sticky top-0 z-50 flex h-14 items-center border-b bg-background px-2 sm:px-4">
           <SidebarTrigger className="cursor-pointer" />
-          <div className="ml-auto flex items-center space-x-2 sm:space-x-4">
+          <div className="ml-auto flex items-center space-x-1 sm:space-x-2 md:space-x-4">
             <Link
               href="/"
-              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-all duration-200"
+              className="flex items-center gap-1.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-all duration-200"
             >
-              <Home className="w-3.5 h-3.5" />
+              <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">View Website</span>
             </Link>
             
@@ -132,7 +132,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     className="fixed inset-0 z-10"
                     onClick={() => setIsDropdownOpen(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-56 z-20 bg-white rounded-lg border border-gray-200 shadow-lg py-1">
+                  <div className="absolute right-0 mt-2 w-48 sm:w-56 z-20 bg-white rounded-lg border border-gray-200 shadow-lg py-1">
                     <div className="px-4 py-3 border-b border-gray-200">
                       <p className="text-sm font-medium text-gray-900">{user?.name || 'Admin'}</p>
                       <p className="text-xs text-gray-500 mt-0.5">{user?.email || 'admin@example.com'}</p>
@@ -172,7 +172,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <main className="flex-1 p-4">{children}</main>
+        <main className="flex-1 p-2 sm:p-4 md:p-6 overflow-x-hidden">{children}</main>
       </div>
     </SidebarProvider>
   );
