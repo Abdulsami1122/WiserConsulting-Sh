@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Globe2, 
-  Smartphone, 
-  ShoppingCart, 
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Globe2,
+  Smartphone,
+  ShoppingCart,
   Building2,
   GraduationCap,
   Heart,
@@ -15,7 +16,7 @@ import {
   Github,
   Smile,
   Calendar,
-  UserCheck
+  UserCheck,
 } from "lucide-react";
 
 interface PortfolioProject {
@@ -108,6 +109,22 @@ const Portfolio = () => {
       color: "from-green-500 to-emerald-500"
     }
   ];
+
+  const cardVariants = {
+    hidden: {
+      opacity: 0,
+      y: 80,
+    },
+    visible: (index: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: index * 0.2,
+        duration: 0.6,
+        ease: "easeInOut",
+      },
+    }),
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -217,58 +234,79 @@ const Portfolio = () => {
               {filteredProjects.map((project, index) => (
                 <motion.div
                   key={project._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-xl transition-all group"
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.3 }}
+                  custom={index}
+                  variants={cardVariants}
+                  className="group"
                 >
-                  <div className="bg-gradient-to-br from-slate-100 to-slate-200 h-48 flex items-center justify-center overflow-hidden">
-                    {project.image && (project.image.startsWith('http') || project.image.startsWith('/')) ? (
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-6xl">{project.image || '🛒'}</div>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-xl font-bold text-slate-900">
-                        {project.title}
-                      </h3>
-                      {project.link && (
-                        <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-900 transition-colors" />
-                      )}
-                    </div>
-                    <p className="text-slate-600 mb-4">
-                      {project.description}
-                    </p>
-                    {project.technologies && project.technologies.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {project.technologies.map((tech, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full"
+                  <Card className="p-0 ring-0 overflow-hidden shadow-none border-0 bg-transparent">
+                    <CardContent className="p-0 flex flex-col gap-4">
+                      <div className="relative overflow-hidden rounded-2xl bg-slate-100">
+                        {project.link ? (
+                          <a
+                            href={project.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
                           >
-                            {tech}
-                          </span>
-                        ))}
+                            {project.image &&
+                            (project.image.startsWith("http") ||
+                              project.image.startsWith("/")) ? (
+                              <img
+                                src={project.image}
+                                alt={project.title}
+                                width="100%"
+                                height={260}
+                                className="rounded-2xl object-cover w-full h-[260px] transition-transform duration-500 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center h-[260px] text-6xl">
+                                {project.image || "🛒"}
+                              </div>
+                            )}
+                          </a>
+                        ) : project.image &&
+                          (project.image.startsWith("http") ||
+                            project.image.startsWith("/")) ? (
+                          <img
+                            src={project.image}
+                            alt={project.title}
+                            width="100%"
+                            height={260}
+                            className="rounded-2xl object-cover w-full h-[260px] transition-transform duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-[260px] text-6xl">
+                            {project.image || "🛒"}
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {project.link && (
-                      <a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-slate-900 font-semibold hover:underline inline-flex items-center gap-2"
-                      >
-                        View Project
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
-                  </div>
+                      <div className="flex flex-col gap-2">
+                        <h3 className="text-foreground text-xl font-semibold truncate">
+                          {project.title}
+                        </h3>
+                        {project.technologies && project.technologies.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {project.technologies.slice(0, 3).map((tech, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-normal h-7 bg-background text-foreground"
+                              >
+                                {tech}
+                              </span>
+                            ))}
+                            {project.technologies.length > 3 && (
+                              <span className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-normal h-7 bg-background text-foreground">
+                                +{project.technologies.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </motion.div>
               ))}
             </div>
