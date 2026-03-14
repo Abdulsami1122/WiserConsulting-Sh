@@ -11,8 +11,6 @@ import {
   Mail, 
   ArrowRight,
   Code2,
-  Database,
-  Cloud,
   Smartphone,
   Globe2,
   Briefcase,
@@ -161,8 +159,6 @@ const Team = () => {
     { name: "CEO", icon: <UserCircle className="w-5 h-5" /> },
     { name: "Project Manager", icon: <Briefcase className="w-5 h-5" /> },
     { name: "Frontend Development", icon: <Code2 className="w-5 h-5" /> },
-    { name: "Backend Development", icon: <Database className="w-5 h-5" /> },
-    { name: "Cloud Architecture", icon: <Cloud className="w-5 h-5" /> },
     { name: "Mobile Development", icon: <Smartphone className="w-5 h-5" /> },
     { name: "Full Stack", icon: <Globe2 className="w-5 h-5" /> },
   ];
@@ -199,16 +195,6 @@ const Team = () => {
       // Frontend Development filter
       if (filterName === 'frontend development') {
         return roles.some(r => r.includes('frontend')) || expertise.includes('frontend development');
-      }
-      
-      // Backend Development filter
-      if (filterName === 'backend development') {
-        return roles.some(r => r.includes('backend')) || expertise.includes('backend development');
-      }
-      
-      // Cloud Architecture filter
-      if (filterName === 'cloud architecture') {
-        return roles.some(r => r.includes('cloud')) || expertise.includes('cloud architecture');
       }
       
       // Mobile Development filter
