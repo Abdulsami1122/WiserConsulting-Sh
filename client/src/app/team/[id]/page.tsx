@@ -124,14 +124,14 @@ const TeamMemberPage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative bg-slate-900 text-white pt-24 pb-16 sm:pt-32 sm:pb-20">
+      <section className="relative bg-slate-900 text-white pt-16 pb-12 sm:pt-20 sm:pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back to Team Navigation */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="mb-8"
+            className="mb-6"
           >
             <Link
               href="/team"
@@ -152,7 +152,7 @@ const TeamMemberPage = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-col md:flex-row items-start gap-8"
+            className="flex flex-row items-start gap-4 sm:gap-8"
           >
             {/* Profile Picture */}
             <motion.div
@@ -163,7 +163,7 @@ const TeamMemberPage = () => {
               className="flex-shrink-0"
             >
               {member.image && (member.image.startsWith('http') || member.image.startsWith('/')) ? (
-                <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl">
+                <div className="w-24 h-24 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl">
                   <motion.img
                     src={member.image}
                     alt={member.name}
@@ -173,19 +173,19 @@ const TeamMemberPage = () => {
                   />
                 </div>
               ) : (
-                <div className="w-40 h-40 sm:w-48 sm:h-48 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl flex items-center justify-center text-8xl border-2 border-white/20 shadow-2xl">
+                <div className="w-24 h-24 sm:w-40 sm:h-40 md:w-48 md:h-48 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl flex items-center justify-center text-4xl sm:text-6xl md:text-8xl border-2 border-white/20 shadow-2xl">
                   {member.image || '👨‍💼'}
                 </div>
               )}
             </motion.div>
 
             {/* Profile Info */}
-            <div className="flex-1">
+            <div className="flex-1 text-left min-w-0">
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3"
+                className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-3"
               >
                 {member.name}
               </motion.h1>
@@ -194,7 +194,7 @@ const TeamMemberPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="text-xl sm:text-2xl text-white mb-2"
+                className="text-base sm:text-xl md:text-2xl text-white mb-1 sm:mb-2"
               >
                 {primaryRole}
               </motion.p>
@@ -203,7 +203,7 @@ const TeamMemberPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
-                className="text-base sm:text-lg text-slate-300 mb-6"
+                className="text-sm sm:text-base md:text-lg text-slate-300 mb-4 sm:mb-6"
               >
                 {secondaryRole}
               </motion.p>
@@ -213,7 +213,7 @@ const TeamMemberPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.7 }}
-                className="flex items-center gap-3"
+                className="flex items-center gap-2 sm:gap-3"
               >
                 {member.linkedin && (
                   <motion.a
@@ -222,9 +222,9 @@ const TeamMemberPage = () => {
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors backdrop-blur-sm"
+                    className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors backdrop-blur-sm"
                   >
-                    <Linkedin className="w-6 h-6" />
+                    <Linkedin className="w-5 h-5 sm:w-6 sm:h-6" />
                   </motion.a>
                 )}
                 {member.email && (
@@ -232,9 +232,9 @@ const TeamMemberPage = () => {
                     href={`mailto:${member.email}`}
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors backdrop-blur-sm"
+                    className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors backdrop-blur-sm"
                   >
-                    <Mail className="w-6 h-6" />
+                    <Mail className="w-5 h-5 sm:w-6 sm:h-6" />
                   </motion.a>
                 )}
               </motion.div>
