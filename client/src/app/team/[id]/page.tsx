@@ -116,192 +116,289 @@ const TeamMemberPage = () => {
     "Full Stack": <Globe2 className="w-5 h-5" />,
   };
 
+  // Get roles
+  const roles = Array.isArray(member.role) ? member.role : [member.role];
+  const primaryRole = roles[0] || '';
+  const secondaryRole = roles.length > 1 ? roles.slice(1).join(', ') : (member.expertise && member.expertise.length > 0 ? member.expertise[0] : 'Software Engineer');
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white pt-32 pb-20">
+      <section className="relative bg-slate-900 text-white pt-24 pb-16 sm:pt-32 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/team"
-            className="inline-flex items-center gap-2 text-slate-300 hover:text-white transition-colors mb-8"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Team
-          </Link>
+          {/* Back to Team Navigation */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col md:flex-row items-center md:items-start gap-8"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-8"
           >
-            {member.image && (member.image.startsWith('http') || member.image.startsWith('/')) ? (
-              <div className="w-48 h-48 rounded-2xl overflow-hidden flex-shrink-0 border-4 border-white/20 shadow-xl">
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : (
-              <div className="w-48 h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-9xl flex-shrink-0">
-                {member.image || '👨‍💼'}
-              </div>
-            )}
-            <div className="flex-1 text-center md:text-left">
-              <h1 className="text-5xl md:text-6xl font-bold mb-4">
+            <Link
+              href="/team"
+              className="inline-flex items-center gap-2 text-slate-300 hover:text-white transition-colors group"
+            >
+              <motion.div
+                whileHover={{ x: -5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </motion.div>
+              <span>Back to Team</span>
+            </Link>
+          </motion.div>
+
+          {/* Profile Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-col md:flex-row items-start gap-8"
+          >
+            {/* Profile Picture */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex-shrink-0"
+            >
+              {member.image && (member.image.startsWith('http') || member.image.startsWith('/')) ? (
+                <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl">
+                  <motion.img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-full object-cover"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+              ) : (
+                <div className="w-40 h-40 sm:w-48 sm:h-48 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl flex items-center justify-center text-8xl border-2 border-white/20 shadow-2xl">
+                  {member.image || '👨‍💼'}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Profile Info */}
+            <div className="flex-1">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3"
+              >
                 {member.name}
-              </h1>
-              <p className="text-2xl text-slate-300 mb-6">
-                {member.role}
-              </p>
-              <p className="text-lg text-slate-200 max-w-2xl mb-6 leading-relaxed">
-                {member.fullBio || member.bio}
-              </p>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+              </motion.h1>
+              
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="text-xl sm:text-2xl text-white mb-2"
+              >
+                {primaryRole}
+              </motion.p>
+              
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="text-base sm:text-lg text-slate-300 mb-6"
+              >
+                {secondaryRole}
+              </motion.p>
+
+              {/* Social Links */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+                className="flex items-center gap-3"
+              >
                 {member.linkedin && (
-                  <a
+                  <motion.a
                     href={member.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors backdrop-blur-sm"
                   >
                     <Linkedin className="w-6 h-6" />
-                  </a>
-                )}
-                {member.github && (
-                  <a
-                    href={member.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors"
-                  >
-                    <Github className="w-6 h-6" />
-                  </a>
-                )}
-                {member.twitter && (
-                  <a
-                    href={member.twitter}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors"
-                  >
-                    <Twitter className="w-6 h-6" />
-                  </a>
+                  </motion.a>
                 )}
                 {member.email && (
-                  <a
+                  <motion.a
                     href={`mailto:${member.email}`}
-                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors"
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-lg flex items-center justify-center transition-colors backdrop-blur-sm"
                   >
                     <Mail className="w-6 h-6" />
-                  </a>
+                  </motion.a>
                 )}
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* Content Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="md:col-span-2 space-y-12">
-              {/* Expertise */}
-              {member.expertise && member.expertise.length > 0 && (
-                <div>
-                  <h2 className="text-3xl font-bold text-slate-900 mb-6">Areas of Expertise</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {member.expertise.map((exp, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200"
-                      >
-                        {skillIcons[exp] || <Cpu className="w-5 h-5" />}
-                        <span className="font-semibold text-slate-900">{exp}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Skills */}
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            {/* Left Column - Skills & Technologies */}
+            <div className="md:col-span-2">
               {member.skills && member.skills.length > 0 && (
-                <div>
-                  <h2 className="text-3xl font-bold text-slate-900 mb-6">Skills & Technologies</h2>
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">
+                    Skills & Technologies
+                  </h2>
                   <div className="flex flex-wrap gap-3">
                     {member.skills.map((skill, index) => (
-                      <span
+                      <motion.span
                         key={index}
-                        className="px-4 py-2 bg-slate-100 text-slate-700 font-medium rounded-lg border border-slate-200"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        className="px-4 py-2 bg-slate-100 text-slate-700 font-medium rounded-lg border border-slate-200 cursor-default"
                       >
                         {skill}
-                      </span>
+                      </motion.span>
                     ))}
                   </div>
-                </div>
+                </motion.div>
+              )}
+
+              {/* Expertise */}
+              {member.expertise && member.expertise.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="mt-12"
+                >
+                  <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">
+                    Areas of Expertise
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {member.expertise.map((exp, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                        whileHover={{ x: 5, scale: 1.02 }}
+                        className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200"
+                      >
+                        {skillIcons[exp] || <Cpu className="w-5 h-5 text-slate-600" />}
+                        <span className="font-semibold text-slate-900">{exp}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
               )}
 
               {/* Achievements */}
               {member.achievements && member.achievements.length > 0 && (
-                <div>
-                  <h2 className="text-3xl font-bold text-slate-900 mb-6">Key Achievements</h2>
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="mt-12"
+                >
+                  <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">
+                    Key Achievements
+                  </h2>
                   <div className="space-y-4">
                     {member.achievements.map((achievement, index) => (
-                      <div key={index} className="flex items-start gap-3">
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                        className="flex items-start gap-3"
+                      >
                         <CheckCircle2 className="w-6 h-6 text-green-600 mt-0.5 flex-shrink-0" />
                         <p className="text-slate-600 leading-relaxed">{achievement}</p>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               )}
             </div>
 
-            {/* Sidebar */}
+            {/* Right Column - Contact and Role */}
             <div className="space-y-6">
-              <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+              {/* Contact Card */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="bg-slate-50 rounded-xl p-6 border border-slate-200 shadow-sm"
+              >
                 <h3 className="text-xl font-bold text-slate-900 mb-4">Contact</h3>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {member.email && (
-                    <a
+                    <motion.a
                       href={`mailto:${member.email}`}
+                      whileHover={{ x: 5 }}
                       className="flex items-center gap-3 text-slate-600 hover:text-slate-900 transition-colors"
                     >
-                      <Mail className="w-5 h-5" />
-                      <span className="text-sm">{member.email}</span>
-                    </a>
+                      <Mail className="w-5 h-5 flex-shrink-0" />
+                      <span className="text-sm break-all">{member.email}</span>
+                    </motion.a>
                   )}
                   {member.linkedin && (
-                    <a
+                    <motion.a
                       href={member.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
+                      whileHover={{ x: 5 }}
                       className="flex items-center gap-3 text-slate-600 hover:text-blue-600 transition-colors"
                     >
-                      <Linkedin className="w-5 h-5" />
+                      <Linkedin className="w-5 h-5 flex-shrink-0" />
                       <span className="text-sm">LinkedIn Profile</span>
-                    </a>
+                    </motion.a>
                   )}
                   {member.github && (
-                    <a
+                    <motion.a
                       href={member.github}
                       target="_blank"
                       rel="noopener noreferrer"
+                      whileHover={{ x: 5 }}
                       className="flex items-center gap-3 text-slate-600 hover:text-slate-900 transition-colors"
                     >
-                      <Github className="w-5 h-5" />
+                      <Github className="w-5 h-5 flex-shrink-0" />
                       <span className="text-sm">GitHub Profile</span>
-                    </a>
+                    </motion.a>
                   )}
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+              {/* Role Card */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="bg-slate-50 rounded-xl p-6 border border-slate-200 shadow-sm"
+              >
                 <h3 className="text-xl font-bold text-slate-900 mb-4">Role</h3>
-                <p className="text-slate-600">{member.role}</p>
-              </div>
+                <p className="text-slate-600">{primaryRole}</p>
+              </motion.div>
             </div>
           </div>
         </div>

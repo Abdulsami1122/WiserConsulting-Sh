@@ -322,115 +322,154 @@ const Team = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {filteredMembers.map((member, index) => (
-              <motion.div
-                key={member._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white border border-slate-200 rounded-xl overflow-hidden hover:shadow-xl transition-all group"
-              >
-                <div className="p-6">
-                  <div 
-                    onClick={() => router.push(`/team/${member._id}`)}
-                    className="cursor-pointer"
+              {filteredMembers.map((member, index) => {
+                // Get primary and secondary roles
+                const roles = Array.isArray(member.role) ? member.role : [member.role];
+                const primaryRole = roles[0] || '';
+                const secondaryRole = roles.length > 1 ? roles.slice(1).join(', ') : (member.expertise && member.expertise.length > 0 ? member.expertise[0] : 'Software Engineer');
+                
+                return (
+                  <motion.div
+                    key={member._id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group"
                   >
-                    <div className="flex items-start gap-4 mb-4">
-                      {member.image && (member.image.startsWith('http') || member.image.startsWith('/')) ? (
-                        <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 border-slate-200">
-                          <img
-                            src={member.image}
-                            alt={member.name}
-                            className="w-full h-full object-cover"
-                          />
+                    <div className="p-6">
+                      <div 
+                        onClick={() => router.push(`/team/${member._id}`)}
+                        className="cursor-pointer"
+                      >
+                        {/* Profile Picture with Animation */}
+                        <div className="flex justify-center mb-6">
+                          <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            whileInView={{ scale: 1, opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: index * 0.15 }}
+                            whileHover={{ scale: 1.05 }}
+                            className="relative"
+                          >
+                            <div className="w-32 h-32 rounded-full bg-sky-100 p-1 flex items-center justify-center">
+                              {member.image && (member.image.startsWith('http') || member.image.startsWith('/')) ? (
+                                <motion.img
+                                  src={member.image}
+                                  alt={member.name}
+                                  className="w-full h-full rounded-full object-cover"
+                                  whileHover={{ scale: 1.1 }}
+                                  transition={{ duration: 0.3 }}
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center text-6xl">
+                                  {member.image || '👨‍💼'}
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
                         </div>
-                      ) : (
-                        <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl flex items-center justify-center text-5xl flex-shrink-0">
-                          {member.image || '👨‍💼'}
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-slate-700 transition-colors">
+
+                        {/* Name */}
+                        <motion.h3
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.5, delay: index * 0.1 + 0.2 }}
+                          className="text-2xl font-bold text-slate-900 mb-2 text-center group-hover:text-slate-700 transition-colors"
+                        >
                           {member.name}
-                        </h3>
-                        <p className="text-slate-600 text-sm font-medium">
-                          {Array.isArray(member.role) 
-                            ? member.role.join(', ') 
-                            : member.role}
-                        </p>
+                        </motion.h3>
+
+                        {/* Primary Role */}
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.5, delay: index * 0.1 + 0.25 }}
+                          className="text-slate-700 text-sm font-medium text-center mb-1"
+                        >
+                          {primaryRole}
+                        </motion.p>
+
+                        {/* Secondary Role/Specialization */}
+                        <motion.p
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
+                          className="text-slate-500 text-xs text-center mb-4"
+                        >
+                          {secondaryRole}
+                        </motion.p>
+
+                        {/* Skills/Technologies */}
+                        {member.skills && member.skills.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: index * 0.1 + 0.35 }}
+                            className="flex flex-wrap justify-center gap-2 mb-6"
+                          >
+                            {member.skills.slice(0, 3).map((skill, idx) => (
+                              <span
+                                key={idx}
+                                className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                            {member.skills.length > 3 && (
+                              <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full">
+                                +{member.skills.length - 3} more
+                              </span>
+                            )}
+                          </motion.div>
+                        )}
+                      </div>
+
+                      {/* Footer with Icons and View Profile */}
+                      <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+                        <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                          {member.email && (
+                            <motion.a
+                              href={`mailto:${member.email}`}
+                              whileHover={{ scale: 1.2 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="text-slate-400 hover:text-slate-700 transition-colors"
+                              aria-label={`Email ${member.name}`}
+                            >
+                              <Mail className="w-5 h-5" />
+                            </motion.a>
+                          )}
+                          {member.linkedin && (
+                            <motion.a
+                              href={member.linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              whileHover={{ scale: 1.2 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="text-slate-400 hover:text-blue-600 transition-colors"
+                              aria-label={`${member.name}'s LinkedIn`}
+                            >
+                              <Linkedin className="w-5 h-5" />
+                            </motion.a>
+                          )}
+                        </div>
+                        <motion.div 
+                          onClick={() => router.push(`/team/${member._id}`)}
+                          whileHover={{ x: 5 }}
+                          className="flex items-center gap-2 text-slate-500 group-hover:text-slate-900 transition-colors text-sm font-semibold cursor-pointer"
+                        >
+                          View Profile
+                          <ArrowRight className="w-4 h-4" />
+                        </motion.div>
                       </div>
                     </div>
-                    <p className="text-slate-600 mb-4 text-sm leading-relaxed">
-                      {member.bio}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {member.skills && member.skills.slice(0, 3).map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {member.skills && member.skills.length > 3 && (
-                        <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full">
-                          +{member.skills.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-                    <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                      {member.linkedin && (
-                        <a
-                          href={member.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-slate-400 hover:text-blue-600 transition-colors"
-                        >
-                          <Linkedin className="w-5 h-5" />
-                        </a>
-                      )}
-                      {member.github && (
-                        <a
-                          href={member.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-slate-400 hover:text-slate-900 transition-colors"
-                        >
-                          <Github className="w-5 h-5" />
-                        </a>
-                      )}
-                      {member.twitter && (
-                        <a
-                          href={member.twitter}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-slate-400 hover:text-blue-400 transition-colors"
-                        >
-                          <Twitter className="w-5 h-5" />
-                        </a>
-                      )}
-                      {member.email && (
-                        <a
-                          href={`mailto:${member.email}`}
-                          className="text-slate-400 hover:text-slate-900 transition-colors"
-                        >
-                          <Mail className="w-5 h-5" />
-                        </a>
-                      )}
-                    </div>
-                    <div 
-                      onClick={() => router.push(`/team/${member._id}`)}
-                      className="flex items-center gap-2 text-slate-600 group-hover:text-slate-900 transition-colors text-sm font-semibold cursor-pointer"
-                    >
-                      View Profile
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </div>
