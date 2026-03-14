@@ -338,89 +338,89 @@ const AdminPortfolio = () => {
       {/* Desktop Table View */}
       <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Technologies</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {portfolios.map((portfolio) => (
-                <tr key={portfolio._id} className="hover:bg-gray-50">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Technologies</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {portfolios.map((portfolio) => (
+              <tr key={portfolio._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {portfolio.image && (portfolio.image.startsWith('http') || portfolio.image.startsWith('/')) ? (
-                      <img
-                        src={portfolio.image}
-                        alt={portfolio.title}
+                  {portfolio.image && (portfolio.image.startsWith('http') || portfolio.image.startsWith('/')) ? (
+                    <img
+                      src={portfolio.image}
+                      alt={portfolio.title}
                         className="w-16 h-16 object-cover rounded-lg border-2 border-gray-200"
-                      />
-                    ) : (
+                    />
+                  ) : (
                       <div className="text-2xl">{portfolio.image || '🛒'}</div>
-                    )}
-                  </td>
+                  )}
+                </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">{portfolio.title}</div>
+                  <div className="text-sm font-medium text-gray-900">{portfolio.title}</div>
                     <div className="text-sm text-gray-500 line-clamp-1">{portfolio.description}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                       {portfolio.category}
                     </span>
-                  </td>
+                </td>
                   <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      {portfolio.technologies.slice(0, 3).map((tech, idx) => (
-                        <span key={idx} className="px-2 py-1 text-xs bg-gray-100 rounded">
-                          {tech}
-                        </span>
-                      ))}
-                      {portfolio.technologies.length > 3 && (
-                        <span className="px-2 py-1 text-xs bg-gray-100 rounded">
-                          +{portfolio.technologies.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {portfolio.isActive ? (
-                      <span className="flex items-center gap-1 text-green-600">
-                        <Eye className="w-4 h-4" />
-                        <span>Active</span>
+                  <div className="flex flex-wrap gap-1">
+                    {portfolio.technologies.slice(0, 3).map((tech, idx) => (
+                      <span key={idx} className="px-2 py-1 text-xs bg-gray-100 rounded">
+                        {tech}
                       </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-gray-400">
-                        <EyeOff className="w-4 h-4" />
-                        <span>Inactive</span>
+                    ))}
+                    {portfolio.technologies.length > 3 && (
+                      <span className="px-2 py-1 text-xs bg-gray-100 rounded">
+                        +{portfolio.technologies.length - 3}
                       </span>
                     )}
-                  </td>
+                  </div>
+                </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                  {portfolio.isActive ? (
+                    <span className="flex items-center gap-1 text-green-600">
+                      <Eye className="w-4 h-4" />
+                        <span>Active</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-gray-400">
+                      <EyeOff className="w-4 h-4" />
+                        <span>Inactive</span>
+                    </span>
+                  )}
+                </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleEdit(portfolio)}
-                        className="text-blue-600 hover:text-blue-900 p-1"
-                        aria-label="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(portfolio._id)}
-                        className="text-red-600 hover:text-red-900 p-1"
-                        aria-label="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEdit(portfolio)}
+                      className="text-blue-600 hover:text-blue-900 p-1"
+                      aria-label="Edit"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(portfolio._id)}
+                      className="text-red-600 hover:text-red-900 p-1"
+                      aria-label="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         </div>
       </div>
 

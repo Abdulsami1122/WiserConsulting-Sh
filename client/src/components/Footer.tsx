@@ -39,13 +39,13 @@ const Footer = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand Section */}
           <div className="space-y-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden bg-white/10">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white/10">
                 <Image
                   src="/logo.png"
                   alt="Wiser Consulting Logo"
-                  width={48}
-                  height={48}
+                  width={40}
+                  height={40}
                   className="object-contain w-full h-full"
                   unoptimized
                 />

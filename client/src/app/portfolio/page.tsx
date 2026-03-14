@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Globe2,
-  Smartphone,
-  ShoppingCart,
+import { 
+  Globe2, 
+  Smartphone, 
+  ShoppingCart, 
   Building2,
   GraduationCap,
   Heart,
@@ -270,23 +270,28 @@ const Portfolio = () => {
                         ) : project.image &&
                           (project.image.startsWith("http") ||
                             project.image.startsWith("/")) ? (
-                          <img
-                            src={project.image}
-                            alt={project.title}
+                      <img
+                        src={project.image}
+                        alt={project.title}
                             width="100%"
                             height={260}
                             className="rounded-2xl object-cover w-full h-[260px] transition-transform duration-500 group-hover:scale-105"
-                          />
-                        ) : (
+                      />
+                    ) : (
                           <div className="flex items-center justify-center h-[260px] text-6xl">
                             {project.image || "🛒"}
                           </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <h3 className="text-foreground text-xl font-semibold truncate">
+                    )}
+                  </div>
+                      <div className="flex flex-col gap-3">
+                        <h3 className="text-foreground text-xl font-semibold">
                           {project.title}
                         </h3>
+                        {project.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {project.description}
+                          </p>
+                        )}
                         {project.technologies && project.technologies.length > 0 && (
                           <div className="flex flex-wrap gap-2">
                             {project.technologies.slice(0, 3).map((tech, idx) => (
