@@ -24,8 +24,19 @@ const logger = require('./utils/logger');
 const app = express();
 
 // Middlewares
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'http://localhost:3001',
+];
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy does not allow access from ${origin}`));
+    }
+  },
   credentials: true,
 };
 app.use(cors(corsOptions));
