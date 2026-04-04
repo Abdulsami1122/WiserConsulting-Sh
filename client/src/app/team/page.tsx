@@ -106,7 +106,7 @@ const Team = () => {
             return priorityA - priorityB;
           }
           
-          // If same priority, sort by order field, then by name
+          // If same priorityy, sort by order field, then by name
           if (a.order !== b.order) {
             return a.order - b.order;
           }
