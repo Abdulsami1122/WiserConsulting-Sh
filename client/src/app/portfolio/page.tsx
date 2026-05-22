@@ -14,9 +14,6 @@ import {
   Code2,
   ExternalLink,
   Github,
-  Smile,
-  Calendar,
-  UserCheck,
 } from "lucide-react";
 
 interface PortfolioProject {
@@ -83,32 +80,7 @@ const Portfolio = () => {
     ? projects
     : projects.filter(project => project.category === activeFilter);
 
-  const stats = [
-    {
-      number: "100+",
-      label: "Projects Delivered",
-      icon: <Briefcase className="w-6 h-6" />,
-      color: "from-blue-500 to-cyan-500"
-    },
-    {
-      number: "200+",
-      label: "Happy Clients",
-      icon: <Smile className="w-6 h-6" />,
-      color: "from-purple-500 to-pink-500"
-    },
-    {
-      number: "10+",
-      label: "Team Members",
-      icon: <UserCheck className="w-6 h-6" />,
-      color: "from-orange-500 to-red-500"
-    },
-    {
-      number: "5+",
-      label: "Years Experience",
-      icon: <Calendar className="w-6 h-6" />,
-      color: "from-green-500 to-emerald-500"
-    }
-  ];
+
 
   const cardVariants = {
     hidden: {
@@ -159,33 +131,7 @@ const Portfolio = () => {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-slate-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all border border-slate-100 group"
-              >
-                <div className={`w-14 h-14 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
-                  {stat.icon}
-                </div>
-                <div className="text-4xl md:text-5xl font-bold text-slate-900 mb-2 group-hover:text-slate-700 transition-colors">
-                  {stat.number}
-                </div>
-                <div className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Filter Buttons */}
       <section className="py-12 bg-white border-b border-slate-200">

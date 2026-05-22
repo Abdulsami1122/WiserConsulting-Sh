@@ -5,6 +5,13 @@
 
 const rateLimit = require('express-rate-limit');
 
+// Helper to skip rate limiting for local development or when NODE_ENV is development
+const shouldSkip = (req) => {
+  if (process.env.NODE_ENV === 'development') return true;
+  const ip = req.ip || (req.connection && req.connection.remoteAddress);
+  return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+};
+
 // General API rate limiter
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -15,6 +22,7 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: shouldSkip,
 });
 
 // Strict rate limiter for auth endpoints
@@ -27,6 +35,7 @@ const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: shouldSkip,
 });
 
 // File upload rate limiter
@@ -39,6 +48,7 @@ const uploadLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: shouldSkip,
 });
 
 module.exports = {
