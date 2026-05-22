@@ -4,11 +4,11 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
-  Linkedin, 
-  Github, 
-  Twitter, 
-  Mail, 
+import {
+  Linkedin,
+  Github,
+  Twitter,
+  Mail,
   ArrowRight,
   Code2,
   Smartphone,
@@ -51,11 +51,11 @@ const Team = () => {
       setLoading(true);
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const url = `${API_URL}/team?isActive=true`;
-      
+
       // Add timeout to fetch request
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
+
       const res = await fetch(url, {
         method: 'GET',
         headers: {
@@ -81,14 +81,14 @@ const Team = () => {
 
       const data = await res.json();
       console.log('Team members response:', data);
-      
+
       // Helper function to sort team members: CEO > Project Manager > Full Stack > Others
       const sortTeamMembers = (members: TeamMember[]): TeamMember[] => {
         return members.sort((a, b) => {
           // Handle role as string or array - get the first/highest priority role
           const rolesA = Array.isArray(a.role) ? a.role.map(r => String(r).toLowerCase()) : [String(a.role || '').toLowerCase()];
           const rolesB = Array.isArray(b.role) ? b.role.map(r => String(r).toLowerCase()) : [String(b.role || '').toLowerCase()];
-          
+
           // Priority order: CEO > Project Manager > Full Stack > Others
           const getPriority = (roles: string[]) => {
             for (const role of roles) {
@@ -98,14 +98,14 @@ const Team = () => {
             }
             return 4;
           };
-          
+
           const priorityA = getPriority(rolesA);
           const priorityB = getPriority(rolesB);
-          
+
           if (priorityA !== priorityB) {
             return priorityA - priorityB;
           }
-          
+
           // If same priorityy, sort by order field, then by name
           if (a.order !== b.order) {
             return a.order - b.order;
@@ -113,7 +113,7 @@ const Team = () => {
           return a.name.localeCompare(b.name);
         });
       };
-      
+
       if (data.success) {
         let members: TeamMember[] = [];
         if (Array.isArray(data.data)) {
@@ -134,7 +134,7 @@ const Team = () => {
       }
     } catch (error: any) {
       console.error('Error fetching team members:', error);
-      
+
       // Handle different types of errors
       let errorMessage = 'Failed to load team members. ';
       if (error.name === 'AbortError') {
@@ -146,7 +146,7 @@ const Team = () => {
       } else {
         errorMessage += 'Please try again later.';
       }
-      
+
       setError(errorMessage);
       // Keep empty array on error - page will show empty state
       setTeamMembers([]);
@@ -176,32 +176,32 @@ const Team = () => {
 
     return teamMembers.filter((member) => {
       // Handle role as string or array
-      const roles = Array.isArray(member.role) 
+      const roles = Array.isArray(member.role)
         ? member.role.map(r => String(r).toLowerCase())
         : [String(member.role || '').toLowerCase()];
       const roleString = roles.join(' ');
       const expertise = (member.expertise || []).map((e) => String(e).toLowerCase());
-      
+
       // CEO filter
       if (filterName === 'ceo') {
         return roles.some(r => r.includes('ceo'));
       }
-      
+
       // Project Manager filter
       if (filterName === 'project manager') {
         return roles.some(r => r.includes('project manager'));
       }
-      
+
       // Frontend Development filter
       if (filterName === 'frontend development') {
         return roles.some(r => r.includes('frontend')) || expertise.includes('frontend development');
       }
-      
+
       // Mobile Development filter
       if (filterName === 'mobile development') {
         return roles.some(r => r.includes('mobile')) || expertise.includes('mobile development');
       }
-      
+
       // Full Stack filter
       if (filterName === 'full stack') {
         return roles.some(r => r.includes('full stack')) || expertise.includes('full stack');
@@ -227,7 +227,7 @@ const Team = () => {
       {/* Hero Section */}
       <section className="relative text-white pt-32 pb-20 overflow-hidden">
         {/* Background Image */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed"
           style={{
             backgroundImage: 'url(/back.png)',
@@ -261,11 +261,10 @@ const Team = () => {
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={() => setActiveFilter("all")}
-              className={`px-6 py-2 rounded-lg font-semibold transition-all ${
-                activeFilter === "all"
+              className={`px-6 py-2 rounded-lg font-semibold transition-all ${activeFilter === "all"
                   ? "bg-slate-900 text-white"
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-              }`}
+                }`}
             >
               All Team
             </button>
@@ -273,11 +272,10 @@ const Team = () => {
               <button
                 key={skill.name}
                 onClick={() => setActiveFilter(skill.name)}
-                className={`px-6 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
-                  activeFilter === skill.name
+                className={`px-6 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${activeFilter === skill.name
                     ? "bg-slate-900 text-white"
                     : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
+                  }`}
               >
                 {skill.icon}
                 {skill.name}
@@ -321,13 +319,13 @@ const Team = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-[1440px] mx-auto w-full px-4 sm:px-6">
               {filteredMembers.map((member, index) => {
                 // Get primary and secondary roles
                 const roles = Array.isArray(member.role) ? member.role : [member.role];
                 const primaryRole = roles[0] || '';
                 const secondaryRole = roles.length > 1 ? roles.slice(1).join(', ') : (member.expertise && member.expertise.length > 0 ? member.expertise[0] : 'Software Engineer');
-                
+
                 return (
                   <motion.div
                     key={member._id}
@@ -335,15 +333,15 @@ const Team = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group"
+                    className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 group max-w-[340px] mx-auto w-full"
                   >
-                    <div className="p-6">
-                      <div 
+                    <div className="py-5 px-5 sm:px-6">
+                      <div
                         onClick={() => router.push(`/team/${member._id}`)}
                         className="cursor-pointer"
                       >
                         {/* Profile Picture with Animation */}
-                        <div className="flex justify-center mb-6">
+                        <div className="flex justify-center mb-4">
                           <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             whileInView={{ scale: 1, opacity: 1 }}
@@ -352,7 +350,7 @@ const Team = () => {
                             whileHover={{ scale: 1.05 }}
                             className="relative"
                           >
-                            <div className="w-32 h-32 rounded-full bg-sky-100 p-1 flex items-center justify-center">
+                            <div className="w-28 h-28 rounded-full bg-sky-100 p-1 flex items-center justify-center">
                               {member.image && (member.image.startsWith('http') || member.image.startsWith('/')) ? (
                                 <motion.img
                                   src={member.image}
@@ -376,7 +374,7 @@ const Team = () => {
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true }}
                           transition={{ duration: 0.5, delay: index * 0.1 + 0.2 }}
-                          className="text-2xl font-bold text-slate-900 mb-2 text-center group-hover:text-slate-700 transition-colors"
+                          className="text-xl font-bold text-slate-900 mb-1 text-center group-hover:text-slate-700 transition-colors"
                         >
                           {member.name}
                         </motion.h3>
@@ -398,7 +396,7 @@ const Team = () => {
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true }}
                           transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
-                          className="text-slate-500 text-xs text-center mb-4"
+                          className="text-slate-500 text-xs text-center mb-3"
                         >
                           {secondaryRole}
                         </motion.p>
@@ -410,7 +408,7 @@ const Team = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: index * 0.1 + 0.35 }}
-                            className="flex flex-wrap justify-center gap-2 mb-6"
+                            className="flex flex-wrap justify-center gap-2 mb-4"
                           >
                             {member.skills.slice(0, 3).map((skill, idx) => (
                               <span
@@ -430,7 +428,7 @@ const Team = () => {
                       </div>
 
                       {/* Footer with Icons and View Profile */}
-                      <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+                      <div className="flex items-center justify-between pt-3 border-t border-slate-200">
                         <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                           {member.email && (
                             <motion.a
@@ -457,7 +455,7 @@ const Team = () => {
                             </motion.a>
                           )}
                         </div>
-                        <motion.div 
+                        <motion.div
                           onClick={() => router.push(`/team/${member._id}`)}
                           whileHover={{ x: 5 }}
                           className="flex items-center gap-2 text-slate-500 group-hover:text-slate-900 transition-colors text-sm font-semibold cursor-pointer"
