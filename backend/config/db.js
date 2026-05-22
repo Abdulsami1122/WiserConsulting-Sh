@@ -4,19 +4,30 @@ const dns = require('dns');
 const logger = require('../utils/logger');
 
 const connectDB = async () => {
+    let mongoURI = process.env.MONGODB_URI;
+    const localURI = "mongodb://127.0.0.1:27017/wiserconsulting";
+
+    if (!mongoURI) {
+        logger.warn("MONGODB_URI environment variable is not defined. Using local fallback.");
+        mongoURI = localURI;
+    }
+
     try {
         // Fix local Node SRV resolution issues for mongodb+srv URIs
-        dns.setServers(['8.8.8.8', '8.8.4.4']);
-
-        const mongoURI = process.env.MONGODB_URI;
-
-        if (!mongoURI) {
-            throw new Error("MONGODB_URI environment variable is not defined");
+        if (mongoURI.startsWith('mongodb+srv')) {
+            try {
+                dns.setServers(['8.8.8.8', '8.8.4.4']);
+            } catch (dnsErr) {
+                logger.warn("Failed to set custom DNS servers, using system default DNS:", dnsErr.message);
+            }
         }
 
+        logger.info(`Attempting to connect to MongoDB...`);
+        
+        // Try connecting to the primary URI with a shorter timeout for fast fallback
         await mongoose.connect(mongoURI, {
-            serverSelectionTimeoutMS: 10000, // Timeout after 10s instead of 30s
-            socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+            socketTimeoutMS: 45000,
         });
 
         logger.info(`Connected to MongoDB at ${mongoURI}`);
@@ -38,6 +49,23 @@ const connectDB = async () => {
         });
 
     } catch (err) {
+        // If the primary connection failed and it wasn't already localURI, try the local fallback
+        if (mongoURI !== localURI) {
+            logger.warn(`⚠️ Failed to connect to primary MongoDB Atlas database (${mongoURI.replace(/:([^@]+)@/, ':****@')}).`);
+            logger.warn(`Reason: ${err.message}`);
+            logger.warn(`🔄 Falling back to local MongoDB instance...`);
+            try {
+                await mongoose.connect(localURI, {
+                    serverSelectionTimeoutMS: 5000,
+                    socketTimeoutMS: 45000,
+                });
+                logger.info(`✅ Successfully connected to local MongoDB fallback at ${localURI}`);
+                return;
+            } catch (localErr) {
+                logger.error("❌ Failed to connect to local MongoDB fallback:", localErr.message);
+            }
+        }
+        
         logger.error("MongoDB connection error:", err.message);
         console.error("Full error:", err);
         process.exit(1);
