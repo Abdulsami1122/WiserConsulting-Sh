@@ -1,4 +1,4 @@
 "use client";
 
-// Re-export the new AssessmentForm component from the refactored version
+// Re-expport the new AssesmentForm component from the refactored version
 export { default } from "./AssessmentForm/index";
